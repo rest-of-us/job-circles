@@ -18,6 +18,38 @@ This project takes a different approach:
 
 ## How it works
 
+**In short:** it's a public list of experienced tech people outside the US. You add yourself, colleagues back you up, and recruiters get in touch with you directly. It's free, and nobody sits in the middle.
+
+**If you're looking for work**
+
+1. **Fill in a short form** in the [profile builder](https://rest-of-us.github.io/job-circles/join.html) about what you've built and the difference it made. There are no questions about dates or age.
+2. **Click Submit.** Your profile opens on GitHub, ready to send. You click two buttons to send it.
+3. **A volunteer checks it** and approves it. Your profile then shows up in the search on the [website](https://rest-of-us.github.io/job-circles).
+4. **Recruiters contact you directly** using the contact details you chose to share.
+
+**If you're vouching for a colleague**
+
+1. **They send you their profile link** and ask for a vouch: a short, public recommendation.
+2. **You write a sentence or two** about how you worked together, and send it from your own GitHub account ([step-by-step guide](#peer-vouches)).
+3. **It appears on their profile with your name on it.** Because it came from your account, anyone can see it's really from you.
+
+**If you're hiring**
+
+1. **Search** by skill, role or place on the [website](https://rest-of-us.github.io/job-circles). You don't need an account.
+2. **Narrow it down** by time zone, seniority, the kind of work people want, or whether a colleague has vouched for them.
+3. **Click Reveal contact** and get in touch with the person directly. There are no fees.
+
+### Common questions
+
+- **What is GitHub, and why do I need it?** GitHub is a free website for storing and sharing files, used by most software teams. Profiles live there instead of in our own database, so no single company owns or controls them. You'll need a free GitHub account to add a profile or a vouch. Searching doesn't need one.
+- **Why no dates or years of experience?** Dates are how automated hiring filters guess someone's age and screen them out. Here you're judged on what you built and what changed because of it.
+- **Who can see my profile?** Everyone. Your profile is public, so only include what you're happy to share. You can use a nickname instead of your real name. Your contact details are scrambled so automated bots can't easily collect them, but anyone who clicks **Reveal contact** can read them.
+- **Who runs it?** Volunteers. Profiles are grouped into regional hubs (UK, Canada and so on), each looked after by its own maintainers. The website searches all of them at once. You can change or remove your profile at any time.
+
+---
+
+## Under the hood
+
 ```
                        ┌────────────────────────────────────────────┐
                        │  rest-of-us/job-circles  (this repo)       │
