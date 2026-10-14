@@ -2,7 +2,7 @@
 
 **Connecting senior global tech talent directly with recruiters — bypassing ATS filters and regional bias.**
 
-🌍 **Live site:** https://jsrothwell.github.io/job-circles
+🌍 **Live site:** https://rest-of-us.github.io/job-circles
 
 The Rest of US is an open-source, decentralized directory of senior tech talent based outside the United States. Experienced engineers, architects and technical leaders in the UK, Canada, Latin America, Asia-Pacific and beyond are routinely screened out by keyword-matching ATS tools, location checks and age proxies such as graduation years, before a human reads their CV.
 
@@ -20,7 +20,7 @@ This project takes a different approach:
 
 ```
                        ┌────────────────────────────────────────────┐
-                       │  jsrothwell/job-circles  (this repo)       │
+                       │  rest-of-us/job-circles  (this repo)       │
                        │  index.html ── reads ──▶ hubs.json         │
                        │      │                                     │
                        │      └─ fetches every hub's profiles.json, │
@@ -47,17 +47,17 @@ This project takes a different approach:
 
 ## For candidates
 
-**The easy way: use the [profile builder](https://jsrothwell.github.io/job-circles/join.html).** Fill in the form, which checks your entries as you type, and click **Submit on GitHub**. GitHub opens with your file already filled in, and you click **Propose changes** and then **Create pull request**. You only need a free GitHub account. If your region's hub isn't open yet, your profile goes to the community hub in this repository and moves to the regional hub once it launches.
+**The easy way: use the [profile builder](https://rest-of-us.github.io/job-circles/join.html).** Fill in the form, which checks your entries as you type, and click **Submit on GitHub**. GitHub opens with your file already filled in, and you click **Propose changes** and then **Create pull request**. You only need a free GitHub account. If your region's hub isn't open yet, your profile goes to the community hub in this repository and moves to the regional hub once it launches.
 
 **The manual way:**
 
-1. **Find your hub** in [`hubs.json`](hubs.json) or under [Hubs & feeds](https://jsrothwell.github.io/job-circles/#hubs) on the site. If your region has no hub yet, use [`profiles/community/`](profiles/community) in this repository.
+1. **Find your hub** in [`hubs.json`](hubs.json) or under [Hubs & feeds](https://rest-of-us.github.io/job-circles/#hubs) on the site. If your region has no hub yet, use [`profiles/community/`](profiles/community) in this repository.
 2. **Fork the hub repository** and create `profiles/<your-github-handle>.json`. Start from one of the entries in [`profiles/demo.json`](profiles/demo.json).
 3. **Write about impact.** Fill in `major_impact` with the systems you designed and what changed because of them: scale, latency, cost, reliability, team growth. Leave out dates; the schema rejects them.
 4. **Validate locally** (optional; CI does this too):
    ```bash
    npx -p ajv-cli -p ajv-formats ajv validate --spec=draft2020 -c ajv-formats \
-     -s https://jsrothwell.github.io/job-circles/profiles/schema.json \
+     -s https://rest-of-us.github.io/job-circles/profiles/schema.json \
      -d profiles/<your-github-handle>.json
    ```
 5. **Open a pull request** from your own GitHub account. Automated checks confirm that the PR author matches the `github` field in your profile, then a maintainer merges it. Your profile shows up on the site within a few minutes.
@@ -129,7 +129,7 @@ Hub `status` is one of `active`, `demo` (results labelled as samples) or `disabl
 
 ### Use the website
 
-Go to **https://jsrothwell.github.io/job-circles** and:
+Go to **https://rest-of-us.github.io/job-circles** and:
 
 - search across skills, systems, roles and locations (fuzzy matching, so `kafka` finds `event streaming with Kafka`);
 - filter by **skill tags**, **timezone range** (with Americas / EMEA / APAC overlap presets), **work preference** (B2B contract, full-time via EOR, …), **seniority** and **peer-vouched** status;
@@ -143,7 +143,7 @@ Every hub is plain JSON over HTTPS. No API key, no rate-limited API.
 
 ```bash
 # List all hub feeds
-curl -s https://jsrothwell.github.io/job-circles/hubs.json | jq -r '.hubs[].profiles_url'
+curl -s https://rest-of-us.github.io/job-circles/hubs.json | jq -r '.hubs[].profiles_url'
 
 # Staff+ engineers in LATAM open to B2B contracts who know Kubernetes
 curl -s https://rest-of-us.github.io/hub-latam/profiles.json | jq '
@@ -156,7 +156,7 @@ curl -s https://rest-of-us.github.io/hub-latam/profiles.json | jq '
 
 ```js
 // Pull every profile from every hub (Node 18+ or a browser)
-const base = 'https://jsrothwell.github.io/job-circles/';
+const base = 'https://rest-of-us.github.io/job-circles/';
 const { hubs } = await (await fetch(base + 'hubs.json')).json();
 const results = await Promise.allSettled(
   hubs.filter(h => h.status === 'active')
@@ -174,7 +174,7 @@ Please be a good citizen: contact people about roles that match their stated pre
 The site uses `fetch()`, so open it through a local web server instead of `file://`:
 
 ```bash
-git clone https://github.com/jsrothwell/job-circles.git
+git clone https://github.com/rest-of-us/job-circles.git
 cd job-circles
 python3 -m http.server 8000
 # open http://localhost:8000
