@@ -10,7 +10,7 @@ This project takes a different approach:
 
 - **Impact, not chronology.** Profiles describe systems built and outcomes delivered. The [schema](profiles/schema.json) has no fields for birth dates, graduation years, employment dates or "years of experience", and rejects any field it doesn't define.
 - **Peer vouches in public.** Colleagues vouch for each other through pull requests from their own GitHub accounts, so every endorsement has a traceable author.
-- **No middleman.** Recruiters contact candidates directly. No accounts, no fees, no tracking.
+- **No middleman.** Recruiters contact candidates directly. No accounts, no fees.
 - **Federated.** Regional hubs are independent GitHub repositories run by their own maintainers. This site is just a search UI over their public JSON feeds.
 - **Static.** Everything runs on GitHub Pages. No backend, no database.
 
@@ -235,6 +235,10 @@ cd job-circles
 python3 -m http.server 8000
 # open http://localhost:8000
 ```
+
+### Analytics
+
+The official site (`rest-of-us.github.io`) uses Google Analytics to count visits ([`js/analytics.js`](js/analytics.js)). The script checks the hostname first, so local development, forks and self-hosted copies load no analytics. Analytics never receives profile contact details: they're only decoded in the page when a visitor clicks **Reveal contact**, and that isn't sent anywhere.
 
 ### Deploying
 

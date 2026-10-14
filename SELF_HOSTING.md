@@ -28,8 +28,9 @@ Use this to run a node for a region, community or company, with its own submissi
    - set `circles.submit.repository` to `<owner>/<repo>`;
    - keep, remove or add entries in `hubs`. Upstream hubs can stay listed, so your visitors see everyone.
 5. **Remove the samples** if you don't want them: delete the `demo` entry in `hubs.json` and the file `circles/demo.json`.
-6. **Update the links** that point at the upstream project: the README, the footer links in the HTML pages, `CODEOWNERS` and the `$id` URLs in the two schemas.
-7. **Protect `main`.** See [Reviewing pull requests](#reviewing-pull-requests).
+6. **Analytics:** `js/analytics.js` only runs on `rest-of-us.github.io`, so your copy loads none. To add your own, change `SITE_HOST` and `MEASUREMENT_ID` in that file.
+7. **Update the links** that point at the upstream project: the README, the footer links in the HTML pages, `CODEOWNERS` and the `$id` URLs in the two schemas.
+8. **Protect `main`.** See [Reviewing pull requests](#reviewing-pull-requests).
 
 ### Option B: a data-only hub
 
