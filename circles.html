@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Peer circles — The Rest of US</title>
+  <meta name="description" content="Find a small peer circle of senior tech job seekers near you. Meet in person with people in your own job market, or online in your region.">
+  <meta name="theme-color" content="#0b1020">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%234f46e5'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='white' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='6' fill='white'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem('trou-theme'); } catch (e) {}
+      if (!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: { brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="assets/geo.js"></script>
+  <script src="assets/jobflo.js" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style type="text/tailwindcss">
+    .card { @apply rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900; }
+    .field { @apply mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-slate-700 dark:bg-slate-800; }
+    .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800; }
+    .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950; }
+    .tier-title { @apply mb-3 mt-8 flex items-baseline justify-between gap-3 text-lg font-semibold first:mt-0; }
+  </style>
+  <style>
+    html { scroll-behavior: smooth; }
+    #map { z-index: 0; }
+    .dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); }
+    .dark .leaflet-control-attribution, .dark .leaflet-bar a { background: #0f172a; color: #cbd5e1; }
+    .dark .leaflet-popup-content-wrapper, .dark .leaflet-popup-tip { background: #0f172a; color: #e2e8f0; }
+    .flash { animation: flash 1.6s ease-out; }
+    @keyframes flash { 0%, 30% { box-shadow: 0 0 0 3px #6366f1; } 100% { box-shadow: 0 0 0 0 transparent; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .flash { animation: none; } }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+  <header class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <a href="./" class="flex items-center gap-2 font-bold tracking-tight">
+        <svg class="h-7 w-7" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#4f46e5"/><circle cx="32" cy="32" r="18" fill="none" stroke="white" stroke-width="5"/><circle cx="32" cy="32" r="6" fill="white"/></svg>
+        <span>The Rest of <span class="text-brand-600 dark:text-brand-400">US</span></span>
+      </a>
+      <nav class="flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300 sm:gap-2" aria-label="Main">
+        <a href="./#talent" class="hidden rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 sm:inline-flex">Find talent</a>
+        <a href="circles.html" aria-current="page" class="rounded-lg px-3 py-2 text-brand-700 dark:text-brand-400">Peer circles</a>
+        <a href="join.html" class="hidden rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 sm:inline-flex">Add your profile</a>
+        <button id="themeToggle" type="button" class="rounded-lg p-2 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:hover:bg-slate-800" aria-label="Toggle dark mode">
+          <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+      <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(50rem_24rem_at_30%_-10%,rgba(99,102,241,0.16),transparent)] dark:bg-[radial-gradient(50rem_24rem_at_30%_-10%,rgba(99,102,241,0.26),transparent)]"></div>
+      <div class="mx-auto max-w-7xl px-4 pb-8 pt-12 sm:px-6 sm:pt-16">
+        <h1 class="max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">Don't search alone. <span class="text-brand-600 dark:text-brand-400">Search with people near you.</span></h1>
+        <p class="mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-300">
+          A peer circle is a small group of 4–8 senior people between roles who meet every week to share leads, practise interviews and keep each other going.
+          Matching works by place first, so your circle knows your local job market, your employment rules and your timezone, instead of defaulting to US advice.
+        </p>
+        <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Inspired by the Job Search Councils of <a class="underline-offset-2 hover:underline" href="https://www.neversearchalone.org/" target="_blank" rel="noopener">Never Search Alone</a>.</p>
+      </div>
+    </section>
+
+    <!-- Finder -->
+    <section class="mx-auto max-w-7xl px-4 sm:px-6" aria-labelledby="finderTitle">
+      <h2 id="finderTitle" class="sr-only">Find a circle</h2>
+      <div class="card">
+        <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <label for="place" class="block text-sm font-medium">Where are you based?</label>
+            <div class="mt-1 flex flex-col gap-2 sm:flex-row">
+              <div class="flex-1">
+                <input id="place" class="field mt-0 py-3 text-base" placeholder="Start typing your city, e.g. Manchester, Toronto, Pune…">
+              </div>
+              <button id="useLocation" type="button" class="btn py-3">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                Use my location
+              </button>
+            </div>
+            <p id="placeNote" class="mt-2 text-xs text-slate-500 dark:text-slate-400">Your location stays in this browser and isn't saved or shared. City search looks up only the name you type, using Open-Meteo.</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[34rem]">
+            <label class="text-xs font-medium text-slate-600 dark:text-slate-400">In person within
+              <select id="radius" class="field">
+                <option value="10">10 km</option><option value="25">25 km</option><option value="50" selected>50 km</option><option value="100">100 km</option><option value="200">200 km</option>
+              </select>
+            </label>
+            <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Format
+              <select id="format" class="field">
+                <option value="">Any</option><option value="in_person">In person</option><option value="online">Online</option>
+              </select>
+            </label>
+            <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Language
+              <select id="language" class="field"><option value="">Any</option></select>
+            </label>
+            <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Focus
+              <select id="focus" class="field"><option value="">Any</option></select>
+            </label>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <label class="flex cursor-pointer items-center gap-2"><input id="showFull" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"> Show full and closed circles</label>
+          <label class="flex cursor-pointer items-center gap-2"><input id="showSamples" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"> Include sample circles</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div class="grid gap-6 lg:grid-cols-[1fr_28rem]">
+        <div class="order-2 lg:order-1">
+          <p id="summary" class="mb-4 text-sm text-slate-600 dark:text-slate-400" aria-live="polite">Loading circles…</p>
+          <div id="results"></div>
+        </div>
+        <div class="order-1 lg:order-2">
+          <div class="lg:sticky lg:top-20">
+            <div id="map" class="h-72 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 lg:h-[34rem]" role="region" aria-label="Map of circles"></div>
+            <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
+              <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>In person</span>
+              <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>Hybrid</span>
+              <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-sky-500"></span>Online</span>
+              <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-brand-600 ring-2 ring-brand-200"></span>You</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/50">
+      <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <h2 class="text-2xl font-bold tracking-tight">How circles work</h2>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div><p class="font-semibold">Small</p><p class="mt-1 text-sm text-slate-600 dark:text-slate-400">4–8 people, so everyone gets airtime every week.</p></div>
+          <div><p class="font-semibold">Local first</p><p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Same city where possible: shared recruiters, salary bands, employment law and a table you can actually sit around.</p></div>
+          <div><p class="font-semibold">Regular</p><p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Weekly or fortnightly, often for about 8 weeks. Each meeting covers wins, blockers and one specific ask from each person.</p></div>
+          <div><p class="font-semibold">Private by design</p><p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Only organizers are listed. Members aren't named anywhere, and you ask to join privately by email or form.</p></div>
+        </div>
+        <div class="mt-10 flex flex-col gap-4 rounded-2xl border border-slate-200 p-6 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="font-semibold">No circle near you?</p>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Start one. It takes a few minutes, and the next person who searches nearby will find it.</p>
+          </div>
+          <a href="start-circle.html" class="btn-primary shrink-0 px-4 py-2.5">Start a circle</a>
+        </div>
+        <div class="mt-6 max-w-xl" data-promo="jobflo" data-variant="card" data-title="Bring your pipeline to the circle" data-text="Weekly check-ins go better when everyone knows where their applications stand. JobFlo tracks each one, flags ghost jobs and shows which have gone cold."></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-7xl px-4 py-8 text-sm text-slate-500 dark:text-slate-400 sm:px-6">
+      Circles are listed in <a class="hover:underline" href="circles/index.json">circles/index.json</a> and follow <a class="hover:underline" href="circles/schema.json">circles/schema.json</a>. Map data © OpenStreetMap contributors.
+    </div>
+  </footer>
+
+<script>
+'use strict';
+
+const FEEDS = [
+  { url: 'circles/index.json', sample: false },
+  { url: 'circles/demo.json', sample: true }
+];
+const STALE_DAYS = 90;
+const REGIONAL_KM = 3000;     // online circles beyond this need the same country
+const ORIGIN_KEY = 'trou-circle-origin';
+const REPO = 'rest-of-us/job-circles';
+
+const FORMAT = {
+  in_person: { label: 'In person', color: '#10b981', badge: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' },
+  hybrid: { label: 'Hybrid', color: '#f59e0b', badge: 'bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300' },
+  online: { label: 'Online', color: '#0ea5e9', badge: 'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300' }
+};
+const STATUS = { forming: 'Forming', open: 'Open', full: 'Full', closed: 'Closed' };
+const DAYS = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun', flexible: 'Day flexible' };
+
+const state = { circles: [], origin: null, map: null, layer: null };
+const $ = (s) => document.querySelector(s);
+
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function safeUrl(u) {
+  try { const x = new URL(u); return x.protocol === 'https:' ? x.href : ''; } catch { return ''; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Data
+ * ------------------------------------------------------------------ */
+function plausible(c) {
+  return c && typeof c.id === 'string' && typeof c.name === 'string'
+    && Number.isFinite(c.location?.lat) && Number.isFinite(c.location?.lon) && FORMAT[c.format];
+}
+
+async function load() {
+  const seen = new Set();
+  const results = await Promise.allSettled(FEEDS.map(async (f) => {
+    const res = await fetch(f.url, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    return (Array.isArray(data) ? data : []).filter(plausible).map((c) => ({ ...c, _sample: f.sample }));
+  }));
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue;
+    for (const c of r.value) if (!seen.has(c.id)) { seen.add(c.id); state.circles.push(c); }
+  }
+  const langs = new Set(), focus = new Set();
+  for (const c of state.circles) { (c.languages || []).forEach((l) => langs.add(l)); (c.focus || []).forEach((f) => focus.add(f)); }
+  $('#language').insertAdjacentHTML('beforeend', [...langs].sort().map((l) => `<option>${esc(l)}</option>`).join(''));
+  $('#focus').insertAdjacentHTML('beforeend', [...focus].sort().map((f) => `<option>${esc(f)}</option>`).join(''));
+}
+
+/* ------------------------------------------------------------------ *
+ * Matching: in person nearby first, then online in your region
+ * ------------------------------------------------------------------ */
+function visible() {
+  const fmt = $('#format').value, lang = $('#language').value, focus = $('#focus').value;
+  const showFull = $('#showFull').checked, showSamples = $('#showSamples').checked;
+  return state.circles.filter((c) => {
+    if (!showSamples && c._sample) return false;
+    if (!showFull && (c.status === 'full' || c.status === 'closed')) return false;
+    if (fmt === 'in_person' && c.format === 'online') return false;
+    if (fmt === 'online' && c.format === 'in_person') return false;
+    if (lang && !(c.languages || []).includes(lang)) return false;
+    if (focus && !(c.focus || []).includes(focus)) return false;
+    return true;
+  });
+}
+
+const circleOffset = (c) => (c.tz_name && Geo.offsetOf(c.tz_name) !== null ? Geo.offsetOf(c.tz_name) : Geo.parseOffset(c.timezone));
+const seatsLeft = (c) => Math.max(0, (c.capacity || 0) - (c.members_count || 0));
+const isJoinable = (c) => c.status === 'open' || c.status === 'forming';
+
+function match(origin) {
+  const radius = Number($('#radius').value);
+  const list = visible().map((c) => {
+    const km = Geo.distanceKm(origin, c.location);
+    const off = circleOffset(c);
+    const tzDiff = origin.offset !== null && off !== null ? Math.abs(origin.offset - off) : null;
+    return { c, km, tzDiff, sameCountry: !!origin.country && origin.country === c.location.country };
+  });
+  // Joinable circles with seats first, then nearest.
+  const byFit = (a, b) => (isJoinable(b.c) - isJoinable(a.c)) || ((seatsLeft(b.c) > 0) - (seatsLeft(a.c) > 0)) || a.km - b.km;
+
+  const nearby = list.filter((x) => x.c.format !== 'online' && x.km <= radius).sort(byFit);
+  const used = new Set(nearby.map((x) => x.c.id));
+  const regional = list
+    .filter((x) => !used.has(x.c.id) && x.c.format !== 'in_person'
+      && (x.sameCountry || (x.km <= REGIONAL_KM && (x.tzDiff === null || x.tzDiff <= 2))))
+    .sort((a, b) => (b.sameCountry - a.sameCountry) || ((a.tzDiff ?? 0) - (b.tzDiff ?? 0)) || byFit(a, b));
+  regional.forEach((x) => used.add(x.c.id));
+  const further = list.filter((x) => !used.has(x.c.id)).sort((a, b) => a.km - b.km);
+  return { radius, nearby, regional, further };
+}
+
+/* ------------------------------------------------------------------ *
+ * Rendering
+ * ------------------------------------------------------------------ */
+function fmtKm(km) { return km < 1 ? '<1 km' : km < 100 ? `${km.toFixed(km < 10 ? 1 : 0)} km` : `${Math.round(km).toLocaleString()} km`; }
+
+function meetingText(c, origin) {
+  const m = c.meeting || {};
+  const parts = [m.cadence === 'fortnightly' ? 'Every 2 weeks' : 'Weekly'];
+  if (m.day) parts.push(DAYS[m.day] || m.day);
+  if (m.time) {
+    let t = `${m.time} ${Geo.formatOffset(circleOffset(c) ?? 0)}`;
+    const mine = origin?.offset ?? Geo.deviceOffset();
+    const theirs = circleOffset(c);
+    if (theirs !== null && mine !== theirs && m.day !== 'flexible') {
+      const [h, mm] = m.time.split(':').map(Number);
+      let mins = h * 60 + mm + Math.round((mine - theirs) * 60);
+      const shift = mins < 0 ? ' (day before)' : mins >= 1440 ? ' (next day)' : '';
+      mins = ((mins % 1440) + 1440) % 1440;
+      t += ` · ${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')} your time${shift}`;
+    }
+    parts.push(t);
+  }
+  if (m.duration_weeks) parts.push(`${m.duration_weeks} weeks`);
+  if (m.starts) parts.push(`starts ${m.starts}`);
+  return parts.join(' · ');
+}
+
+function joinLink(c) {
+  const org = c.organizers?.[0]?.name?.split(' ')[0] || 'there';
+  if (c.contact?.email) {
+    const subject = encodeURIComponent(`Joining ${c.name} (The Rest of US)`);
+    const body = encodeURIComponent(`Hi ${org},\n\nI found ${c.name} on The Rest of US and would like to join.\n\nA bit about me:\n- Role / focus:\n- Where I'm based:\n- What I'm looking for:\n\nThanks!`);
+    return `mailto:${c.contact.email}?subject=${subject}&body=${body}`;
+  }
+  return safeUrl(c.contact?.url);
+}
+
+function isStale(c) {
+  const d = Date.parse(c.updated || c.created);
+  return Number.isFinite(d) && Date.now() - d > STALE_DAYS * 864e5;
+}
+
+function card(x) {
+  const c = x.c, f = FORMAT[c.format], left = seatsLeft(c), joinable = isJoinable(c) && left > 0;
+  const link = joinLink(c);
+  const place = [c.location.city, Geo.countryName(c.location.country)].filter(Boolean).join(', ');
+  const editUrl = c._sample ? '' : `https://github.com/${REPO}/edit/main/circles/entries/${encodeURIComponent(c.id)}.json`;
+  return `<article id="circle-${esc(c.id)}" class="card mb-3 scroll-mt-24">
+    <div class="flex flex-wrap items-start justify-between gap-2">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <h3 class="font-semibold">${esc(c.name)}</h3>
+          ${c._sample ? '<span class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">Sample</span>' : ''}
+        </div>
+        <p class="text-sm text-slate-500 dark:text-slate-400">${esc(place)}${x.km !== undefined ? ` · <span class="font-medium text-slate-700 dark:text-slate-300">${fmtKm(x.km)}</span> away` : ''}</p>
+      </div>
+      <div class="flex flex-wrap gap-1.5 text-xs font-medium">
+        <span class="rounded-full px-2 py-0.5 ${f.badge}">${f.label}</span>
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 dark:bg-slate-800">${STATUS[c.status] || c.status}${c.status === 'forming' ? ': founders wanted' : ''}</span>
+      </div>
+    </div>
+    <p class="mt-3 text-sm text-slate-700 dark:text-slate-300">${esc(c.description)}</p>
+    <dl class="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+      <div class="flex gap-2"><dt class="text-slate-500 dark:text-slate-400">Meets</dt><dd>${esc(meetingText(c, state.origin))}</dd></div>
+      <div class="flex gap-2"><dt class="text-slate-500 dark:text-slate-400">Seats</dt><dd>${esc(c.members_count)}/${esc(c.capacity)} ${left ? `<span class="text-emerald-700 dark:text-emerald-400">(${left} open)</span>` : ''}</dd></div>
+      <div class="flex gap-2"><dt class="text-slate-500 dark:text-slate-400">Language</dt><dd>${esc((c.languages || ['English']).join(', '))}</dd></div>
+      <div class="flex gap-2"><dt class="text-slate-500 dark:text-slate-400">Organizer</dt><dd>${(c.organizers || []).map((o) => esc(o.name)).join(', ')}</dd></div>
+    </dl>
+    ${(c.focus || []).length ? `<div class="mt-3 flex flex-wrap gap-1.5">${c.focus.map((t) => `<span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-800">${esc(t)}</span>`).join('')}</div>` : ''}
+    ${isStale(c) ? `<p class="mt-3 text-xs text-amber-700 dark:text-amber-400">Not updated since ${esc(c.updated || c.created)}, so it may be inactive. Check with the organizer.</p>` : ''}
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      ${link && joinable ? `<a href="${esc(link)}" target="_blank" rel="noopener" class="btn-primary">Ask to join</a>` : ''}
+      ${link && !joinable && c.status !== 'closed' ? `<a href="${esc(link)}" target="_blank" rel="noopener" class="btn">Join the waitlist</a>` : ''}
+      <button type="button" data-locate="${esc(c.id)}" class="btn">Show on map</button>
+      ${editUrl ? `<a href="${esc(editUrl)}" target="_blank" rel="noopener" class="ml-auto text-xs text-slate-500 hover:underline dark:text-slate-400">Organizer? Update seats</a>` : ''}
+    </div>
+  </article>`;
+}
+
+function startCta(origin, radius) {
+  return `<div class="card mb-3 border-dashed">
+    <p class="font-semibold">No in-person circle within ${radius} km of ${esc(origin.label)} yet</p>
+    <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Start one and be the organizer. The next senior person who searches nearby will find it. Until then, the online circles below cover your region.</p>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <a href="start-circle.html" data-start class="btn-primary">Start a circle${origin.city ? ' in ' + esc(origin.city) : ''}</a>
+      ${radius < 200 ? `<button type="button" data-widen class="btn">Search within ${radius < 50 ? 50 : radius < 100 ? 100 : 200} km</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function render() {
+  const out = [];
+  let shown = [];
+  if (state.origin) {
+    const { radius, nearby, regional, further } = match(state.origin);
+    out.push(`<h3 class="tier-title"><span>Meet in person</span><span class="text-sm font-normal text-slate-500">within ${radius} km of ${esc(state.origin.label)}</span></h3>`);
+    out.push(nearby.length ? nearby.map(card).join('') : startCta(state.origin, radius));
+    if (nearby.length && !nearby.some((x) => isJoinable(x.c) && seatsLeft(x.c) > 0)) out.push(startCta(state.origin, radius).replace('No in-person circle', 'No in-person circle with open seats'));
+    out.push(`<h3 class="tier-title"><span>Online in your region</span><span class="text-sm font-normal text-slate-500">same country or close timezone</span></h3>`);
+    out.push(regional.length ? regional.map(card).join('') : '<p class="card mb-3 text-sm text-slate-600 dark:text-slate-400">No online circles in your region yet.</p>');
+    if (further.length) {
+      out.push(`<details class="mt-8"><summary class="cursor-pointer text-lg font-semibold">Further away <span class="text-sm font-normal text-slate-500">(${further.length})</span></summary><div class="mt-3">${further.map(card).join('')}</div></details>`);
+    }
+    shown = [...nearby, ...regional];
+    const n = nearby.length, r = regional.length;
+    $('#summary').textContent = `${n} in-person circle${n === 1 ? '' : 's'} near ${state.origin.label}, ${r} online in your region.`;
+  } else {
+    const list = visible().map((c) => ({ c })).sort((a, b) => String(b.c.updated || b.c.created).localeCompare(String(a.c.updated || a.c.created)));
+    out.push(list.length ? list.map(card).join('') : '<p class="card text-sm">No circles match these filters yet.</p>');
+    shown = list;
+    $('#summary').textContent = `${list.length} circle${list.length === 1 ? '' : 's'}. Enter your city to see which ones are near you.`;
+  }
+  $('#results').innerHTML = out.join('');
+  renderMap(shown);
+}
+
+/* ------------------------------------------------------------------ *
+ * Map
+ * ------------------------------------------------------------------ */
+function initMap() {
+  if (!window.L) { $('#map').innerHTML = '<p class="p-4 text-sm text-slate-500">The map couldn’t load.</p>'; return; }
+  state.map = L.map('map', { worldCopyJump: true, scrollWheelZoom: false }).setView([20, 10], 2);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(state.map);
+  state.layer = L.layerGroup().addTo(state.map);
+  state.markers = {};
+}
+
+function renderMap(shown) {
+  if (!state.map) return;
+  state.layer.clearLayers();
+  state.markers = {};
+  const all = visible();
+  const points = [];
+  for (const c of all) {
+    const highlighted = !state.origin || shown.some((x) => x.c.id === c.id);
+    const m = L.circleMarker([c.location.lat, c.location.lon], {
+      radius: highlighted ? 9 : 6, color: '#fff', weight: 2,
+      fillColor: FORMAT[c.format].color, fillOpacity: highlighted ? 0.95 : 0.4
+    }).addTo(state.layer);
+    m.bindPopup(`<strong>${esc(c.name)}</strong><br>${esc(c.location.city)} · ${FORMAT[c.format].label}<br><a href="#circle-${esc(c.id)}" data-jump="${esc(c.id)}">View details</a>`);
+    state.markers[c.id] = m;
+    if (highlighted) points.push([c.location.lat, c.location.lon]);
+  }
+  if (state.origin) {
+    L.circleMarker([state.origin.lat, state.origin.lon], { radius: 8, color: '#c7d2fe', weight: 4, fillColor: '#4f46e5', fillOpacity: 1 })
+      .bindTooltip('You').addTo(state.layer);
+    L.circle([state.origin.lat, state.origin.lon], { radius: Number($('#radius').value) * 1000, color: '#6366f1', weight: 1, fillOpacity: 0.05 }).addTo(state.layer);
+    points.push([state.origin.lat, state.origin.lon]);
+    const near = shown.filter((x) => x.km <= Number($('#radius').value) * 2).map((x) => [x.c.location.lat, x.c.location.lon]);
+    const focus = near.length ? [...near, [state.origin.lat, state.origin.lon]] : points;
+    if (focus.length > 1) state.map.fitBounds(focus, { padding: [30, 30], maxZoom: 10 });
+    else state.map.setView([state.origin.lat, state.origin.lon], 9);
+  } else if (points.length) {
+    state.map.fitBounds(points, { padding: [30, 30], maxZoom: 5 });
+  }
+}
+
+function locate(id) {
+  const m = state.markers?.[id];
+  if (!m) return;
+  state.map.setView(m.getLatLng(), Math.max(state.map.getZoom(), 9));
+  m.openPopup();
+  $('#map').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function jumpTo(id) {
+  const el = document.getElementById('circle-' + id);
+  if (!el) return;
+  el.closest('details')?.setAttribute('open', '');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+
+/* ------------------------------------------------------------------ *
+ * Origin
+ * ------------------------------------------------------------------ */
+function setOrigin(o) {
+  state.origin = o;
+  try { sessionStorage.setItem(ORIGIN_KEY, JSON.stringify(o)); } catch {}
+  if (o.isUS) {
+    $('#placeNote').textContent = 'The Rest of US is for people outside the US, so there are no circles there. The results below are the nearest ones.';
+  }
+  render();
+}
+
+function bind() {
+  Geo.attachCityPicker($('#place'), (p) => setOrigin({
+    lat: p.lat, lon: p.lon, country: p.country, offset: p.offset, city: p.city,
+    admin_area: p.admin_area, timezone: p.timezone, label: p.city, isUS: p.isUS
+  }));
+
+  $('#useLocation').addEventListener('click', () => {
+    if (!navigator.geolocation) { $('#placeNote').textContent = 'Your browser can’t share a location. Type your city instead.'; return; }
+    const btn = $('#useLocation');
+    btn.disabled = true; btn.lastChild.textContent = ' Locating…';
+    navigator.geolocation.getCurrentPosition((pos) => {
+      btn.disabled = false; btn.lastChild.textContent = ' Use my location';
+      $('#place').value = 'My location';
+      // Coarsen to ~1 km and keep it in this page only.
+      setOrigin({ lat: Geo.round2(pos.coords.latitude), lon: Geo.round2(pos.coords.longitude), country: null, offset: Geo.deviceOffset(), city: '', label: 'your location' });
+    }, () => {
+      btn.disabled = false; btn.lastChild.textContent = ' Use my location';
+      $('#placeNote').textContent = 'Couldn’t get your location. Type your city instead.';
+    }, { maximumAge: 600000, timeout: 10000 });
+  });
+
+  for (const id of ['radius', 'format', 'language', 'focus', 'showFull', 'showSamples']) $('#' + id).addEventListener('change', render);
+
+  document.addEventListener('click', (e) => {
+    const loc = e.target.closest('[data-locate]');
+    if (loc) return locate(loc.dataset.locate);
+    const jump = e.target.closest('[data-jump]');
+    if (jump) { e.preventDefault(); state.map.closePopup(); return jumpTo(jump.dataset.jump); }
+    const widen = e.target.closest('[data-widen]');
+    if (widen) {
+      const sel = $('#radius'), opts = [...sel.options].map((o) => Number(o.value));
+      sel.value = String(opts.find((v) => v > Number(sel.value)) || opts.at(-1));
+      return render();
+    }
+  });
+
+  $('#themeToggle').addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    try { localStorage.setItem('trou-theme', dark ? 'dark' : 'light'); } catch {}
+  });
+}
+
+async function init() {
+  bind();
+  initMap();
+  await load();
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem(ORIGIN_KEY) || 'null'); } catch {}
+  if (saved && Number.isFinite(saved.lat)) {
+    $('#place').value = saved.city ? Geo.placeLabel({ city: saved.city, admin_area: saved.admin_area, country: saved.country }) : 'My location';
+    state.origin = saved;
+  }
+  render();
+}
+
+init();
+</script>
+</body>
+</html>

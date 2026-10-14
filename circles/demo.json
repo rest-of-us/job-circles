@@ -1,0 +1,307 @@
+[
+  {
+    "schema_version": "1.0",
+    "id": "demo-manchester-senior-engineers",
+    "name": "Manchester Senior Engineers",
+    "description": "Staff-and-above engineers between roles, meeting in a city-centre café. We share leads in the North West market, run mock system-design interviews and keep each other accountable week to week.",
+    "focus": [
+      "engineering",
+      "leadership"
+    ],
+    "languages": [
+      "English"
+    ],
+    "location": {
+      "city": "Manchester",
+      "admin_area": "England",
+      "country": "GB",
+      "lat": 53.48,
+      "lon": -2.24
+    },
+    "timezone": "UTC+1",
+    "tz_name": "Europe/London",
+    "format": "in_person",
+    "meeting": {
+      "cadence": "weekly",
+      "day": "tue",
+      "time": "18:30",
+      "duration_weeks": 8
+    },
+    "capacity": 6,
+    "members_count": 4,
+    "status": "open",
+    "organizers": [
+      {
+        "name": "Amara Nwosu",
+        "github": "example-anwosu"
+      }
+    ],
+    "contact": {
+      "email": "manchester-circle@example.com"
+    },
+    "created": "2026-09-01",
+    "updated": "2026-10-06"
+  },
+  {
+    "schema_version": "1.0",
+    "id": "demo-london-product-leaders",
+    "name": "London Product & Design Leaders",
+    "description": "Heads of product and design, and principal designers. Fortnightly in person in Shoreditch, with a video link for anyone who can't make it.",
+    "focus": [
+      "product",
+      "design",
+      "leadership"
+    ],
+    "languages": [
+      "English"
+    ],
+    "location": {
+      "city": "London",
+      "admin_area": "England",
+      "country": "GB",
+      "lat": 51.51,
+      "lon": -0.13
+    },
+    "timezone": "UTC+1",
+    "tz_name": "Europe/London",
+    "format": "hybrid",
+    "meeting": {
+      "cadence": "fortnightly",
+      "day": "thu",
+      "time": "08:00"
+    },
+    "capacity": 7,
+    "members_count": 5,
+    "status": "open",
+    "organizers": [
+      {
+        "name": "Priya Shah",
+        "github": "example-pshah"
+      }
+    ],
+    "contact": {
+      "url": "https://example.com/london-circle"
+    },
+    "created": "2026-08-12",
+    "updated": "2026-10-01"
+  },
+  {
+    "schema_version": "1.0",
+    "id": "demo-toronto-platform-sre",
+    "name": "Toronto Platform & SRE",
+    "description": "Platform, infrastructure and SRE folks in the GTA. We meet downtown, swap notes on Canadian hiring and EOR offers, and practise incident-review interviews.",
+    "focus": [
+      "engineering",
+      "sre",
+      "platform"
+    ],
+    "languages": [
+      "English",
+      "French"
+    ],
+    "location": {
+      "city": "Toronto",
+      "admin_area": "Ontario",
+      "country": "CA",
+      "lat": 43.7,
+      "lon": -79.42
+    },
+    "timezone": "UTC-4",
+    "tz_name": "America/Toronto",
+    "format": "in_person",
+    "meeting": {
+      "cadence": "weekly",
+      "day": "wed",
+      "time": "18:00",
+      "duration_weeks": 10
+    },
+    "capacity": 6,
+    "members_count": 6,
+    "status": "full",
+    "organizers": [
+      {
+        "name": "Liam Tremblay",
+        "github": "example-ltremblay"
+      }
+    ],
+    "contact": {
+      "email": "toronto-circle@example.com"
+    },
+    "created": "2026-07-20",
+    "updated": "2026-09-28"
+  },
+  {
+    "schema_version": "1.0",
+    "id": "demo-brasil-engenharia-remota",
+    "name": "Engenharia Sênior Brasil (remoto)",
+    "description": "Senior engineers across Brazil looking for contract and EOR roles abroad. Online, in Portuguese, with English interview practice every other week.",
+    "focus": [
+      "engineering"
+    ],
+    "languages": [
+      "Portuguese",
+      "English"
+    ],
+    "location": {
+      "city": "São Paulo",
+      "admin_area": "São Paulo",
+      "country": "BR",
+      "lat": -23.55,
+      "lon": -46.64
+    },
+    "timezone": "UTC-3",
+    "tz_name": "America/Sao_Paulo",
+    "format": "online",
+    "meeting": {
+      "cadence": "weekly",
+      "day": "mon",
+      "time": "19:00",
+      "duration_weeks": 12
+    },
+    "capacity": 8,
+    "members_count": 5,
+    "status": "open",
+    "organizers": [
+      {
+        "name": "Mateo Ferreira",
+        "github": "example-mferreira"
+      }
+    ],
+    "contact": {
+      "url": "https://example.com/circulo-brasil"
+    },
+    "created": "2026-09-10",
+    "updated": "2026-10-10"
+  },
+  {
+    "schema_version": "1.0",
+    "id": "demo-bengaluru-ml-data",
+    "name": "Bengaluru ML & Data",
+    "description": "Senior ML, data and analytics engineers in Bengaluru. Saturday mornings in Indiranagar; we focus on global remote roles and portfolio reviews.",
+    "focus": [
+      "data",
+      "machine-learning"
+    ],
+    "languages": [
+      "English",
+      "Hindi",
+      "Kannada"
+    ],
+    "location": {
+      "city": "Bengaluru",
+      "admin_area": "Karnataka",
+      "country": "IN",
+      "lat": 12.97,
+      "lon": 77.59
+    },
+    "timezone": "UTC+5:30",
+    "tz_name": "Asia/Kolkata",
+    "format": "hybrid",
+    "meeting": {
+      "cadence": "weekly",
+      "day": "sat",
+      "time": "10:00",
+      "duration_weeks": 8
+    },
+    "capacity": 6,
+    "members_count": 2,
+    "status": "forming",
+    "organizers": [
+      {
+        "name": "Anjali Rao",
+        "github": "example-arao"
+      }
+    ],
+    "contact": {
+      "email": "blr-circle@example.com"
+    },
+    "created": "2026-10-02",
+    "updated": "2026-10-02"
+  },
+  {
+    "schema_version": "1.0",
+    "id": "demo-berlin-engineering-managers",
+    "name": "Berlin Engineering Managers",
+    "description": "Engineering managers and directors in Berlin and Brandenburg. English-speaking, in person near Alexanderplatz. Expect salary benchmarking and frank feedback on positioning.",
+    "focus": [
+      "leadership",
+      "engineering"
+    ],
+    "languages": [
+      "English",
+      "German"
+    ],
+    "location": {
+      "city": "Berlin",
+      "admin_area": "Berlin",
+      "country": "DE",
+      "lat": 52.52,
+      "lon": 13.41
+    },
+    "timezone": "UTC+2",
+    "tz_name": "Europe/Berlin",
+    "format": "in_person",
+    "meeting": {
+      "cadence": "weekly",
+      "day": "thu",
+      "time": "19:00"
+    },
+    "capacity": 6,
+    "members_count": 3,
+    "status": "open",
+    "organizers": [
+      {
+        "name": "Elena Petrova",
+        "github": "example-epetrova"
+      }
+    ],
+    "contact": {
+      "email": "berlin-circle@example.com"
+    },
+    "created": "2026-05-04",
+    "updated": "2026-06-20"
+  },
+  {
+    "schema_version": "1.0",
+    "id": "demo-lagos-tech-leads",
+    "name": "Lagos Tech Leads",
+    "description": "Tech leads and senior engineers in Lagos working towards remote roles with UK and EU companies. Hybrid, with monthly in-person sessions in Yaba.",
+    "focus": [
+      "engineering",
+      "leadership"
+    ],
+    "languages": [
+      "English"
+    ],
+    "location": {
+      "city": "Lagos",
+      "admin_area": "Lagos",
+      "country": "NG",
+      "lat": 6.45,
+      "lon": 3.39
+    },
+    "timezone": "UTC+1",
+    "tz_name": "Africa/Lagos",
+    "format": "hybrid",
+    "meeting": {
+      "cadence": "weekly",
+      "day": "wed",
+      "time": "19:30",
+      "duration_weeks": 8
+    },
+    "capacity": 7,
+    "members_count": 4,
+    "status": "open",
+    "organizers": [
+      {
+        "name": "Tunde Adeyemi",
+        "github": "example-tadeyemi"
+      }
+    ],
+    "contact": {
+      "url": "https://example.com/lagos-circle"
+    },
+    "created": "2026-09-22",
+    "updated": "2026-10-08"
+  }
+]

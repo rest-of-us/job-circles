@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rest-of-us.github.io/job-circles/circles/schema.json",
+  "title": "The Rest of US — Peer circle",
+  "description": "A small peer group of job seekers who meet regularly for support and accountability. Circles are public so seekers can find them; members are not. Only the organizers are named, and a circle shows a member count, never a member list.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "description",
+    "location",
+    "timezone",
+    "format",
+    "meeting",
+    "capacity",
+    "members_count",
+    "status",
+    "organizers",
+    "contact",
+    "created"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "type": "string", "const": "1.0" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 80,
+      "description": "URL-safe slug matching the file name (circles/entries/<id>.json), usually <city>-<name>."
+    },
+    "name": { "type": "string", "minLength": 3, "maxLength": 80 },
+    "description": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 500,
+      "description": "Who the circle is for and how it runs. Plain text."
+    },
+    "focus": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "description": "Optional focus tags, e.g. engineering, product, data, design, leadership.",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.+#-]{0,39}$" }
+    },
+    "languages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "description": "Languages the circle meets in.",
+      "items": { "type": "string", "minLength": 2, "maxLength": 40 },
+      "default": ["English"]
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["city", "country", "lat", "lon"],
+      "description": "City-level location. Coordinates are the city centre, rounded to 2 decimal places. Never a meeting address.",
+      "properties": {
+        "city": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "admin_area": { "type": "string", "maxLength": 80, "description": "State, province or region." },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "not": { "enum": ["US", "PR", "VI", "GU", "AS", "MP", "UM"] },
+          "description": "ISO 3166-1 alpha-2 country code. The project is for talent outside the US."
+        },
+        "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+        "lon": { "type": "number", "minimum": -180, "maximum": 180 }
+      }
+    },
+    "timezone": {
+      "type": "string",
+      "pattern": "^UTC(?:[+-](?:0?[0-9]|1[0-4])(?::(?:00|30|45))?)?$",
+      "description": "UTC offset the meeting time is given in, e.g. UTC+1 or UTC+5:30."
+    },
+    "tz_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)*$",
+      "maxLength": 64,
+      "description": "IANA timezone of the city, e.g. Europe/London. When present, it takes precedence over `timezone` so daylight-saving changes are handled."
+    },
+    "format": {
+      "type": "string",
+      "enum": ["in_person", "hybrid", "online"],
+      "description": "in_person: meets face to face in the city. hybrid: in person with an online option. online: video calls, members from the wider region."
+    },
+    "meeting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cadence"],
+      "properties": {
+        "cadence": { "type": "string", "enum": ["weekly", "fortnightly"] },
+        "day": { "type": "string", "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "flexible"] },
+        "time": { "type": "string", "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$", "description": "Start time in the circle's timezone (HH:MM)." },
+        "duration_weeks": { "type": "integer", "minimum": 4, "maximum": 52, "description": "Planned length of the circle. Omit if ongoing." },
+        "starts": { "type": "string", "format": "date", "description": "First meeting date, if known." }
+      }
+    },
+    "capacity": { "type": "integer", "minimum": 3, "maximum": 10, "description": "Maximum number of members, including organizers." },
+    "members_count": { "type": "integer", "minimum": 1, "maximum": 10, "description": "Current number of members, including organizers." },
+    "status": {
+      "type": "string",
+      "enum": ["forming", "open", "full", "closed"],
+      "description": "forming: looking for founding members. open: running, with seats. full: running, no seats. closed: finished."
+    },
+    "organizers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "description": "Only organizers may edit the circle. Each must be added in a pull request from an existing organizer (or the first one, on creation).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "github"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 80 },
+          "github": { "type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$" }
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "How seekers privately ask to join. Use an email address or a form or booking link, not a public issue tracker.",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "url": { "type": "string", "format": "uri", "pattern": "^https://" }
+      }
+    },
+    "created": { "type": "string", "format": "date" },
+    "updated": { "type": "string", "format": "date", "description": "Last time an organizer confirmed the details. Circles not updated for 90 days are flagged as possibly inactive." }
+  }
+}

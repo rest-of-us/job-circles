@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Start a circle — The Rest of US</title>
+  <meta name="description" content="Start a peer circle for senior tech job seekers in your city. It's listed publicly so people nearby can find it, and members stay private.">
+  <meta name="theme-color" content="#0b1020">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%234f46e5'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='white' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='6' fill='white'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem('trou-theme'); } catch (e) {}
+      if (!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: { brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } }
+        }
+      }
+    };
+  </script>
+  <script src="assets/geo.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style type="text/tailwindcss">
+    .card { @apply rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 sm:p-6; }
+    .label { @apply block text-sm font-medium; }
+    .hint { @apply mt-1 text-xs text-slate-500 dark:text-slate-400; }
+    .field { @apply mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-slate-700 dark:bg-slate-800; }
+    .show-errors .field[aria-invalid="true"], .show-errors .group-invalid { @apply border-rose-500 ring-2 ring-rose-500/20; }
+    .req::after { content: " *"; @apply text-rose-500; }
+    .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800; }
+    .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950; }
+    .section-title { @apply text-lg font-semibold; }
+    .choice { @apply flex cursor-pointer gap-3 rounded-lg border border-slate-200 p-3 text-sm hover:border-brand-500 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:border-slate-700 dark:has-[:checked]:bg-brand-500/10; }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+  <header class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <a href="./" class="flex items-center gap-2 font-bold tracking-tight">
+        <svg class="h-7 w-7" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#4f46e5"/><circle cx="32" cy="32" r="18" fill="none" stroke="white" stroke-width="5"/><circle cx="32" cy="32" r="6" fill="white"/></svg>
+        <span>The Rest of <span class="text-brand-600 dark:text-brand-400">US</span></span>
+      </a>
+      <nav class="flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300" aria-label="Main">
+        <a href="circles.html" class="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800">← Peer circles</a>
+        <button id="themeToggle" type="button" class="rounded-lg p-2 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:hover:bg-slate-800" aria-label="Toggle dark mode">
+          <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <div class="max-w-3xl">
+      <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Start a circle</h1>
+      <p class="mt-3 text-slate-600 dark:text-slate-300">
+        Describe your circle and where it meets. It's listed on the map for people searching nearby, and they contact you privately to join. Only you, the organizer, are named. Members never are.
+      </p>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
+        <span class="text-slate-600 dark:text-slate-400">Already organizing one?</span>
+        <label class="btn cursor-pointer"><input id="importFile" type="file" accept="application/json,.json" class="sr-only">Import your circle's JSON file</label>
+        <button id="clearDraft" type="button" class="btn">Start over</button>
+      </div>
+    </div>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_24rem]">
+      <form id="circleForm" class="space-y-6" novalidate>
+        <section class="card" aria-labelledby="s-about">
+          <h2 id="s-about" class="section-title">About the circle</h2>
+          <div class="mt-4 grid gap-4">
+            <div>
+              <label for="name" class="label req">Circle name</label>
+              <input id="name" class="field" maxlength="80" placeholder="e.g. Manchester Senior Engineers">
+            </div>
+            <div>
+              <label for="description" class="label req">Who is it for, and how does it run?</label>
+              <textarea id="description" class="field" rows="4" maxlength="500" placeholder="Staff-and-above engineers between roles. We meet in a café in the city centre, share leads and practise interviews."></textarea>
+              <p class="hint"><span data-count="description">0</span>/500</p>
+            </div>
+            <div>
+              <label for="focusInput" class="label">Focus</label>
+              <div id="focusBox" class="field flex min-h-[2.75rem] flex-wrap items-center gap-1.5">
+                <div id="focusChips" class="contents"></div>
+                <input id="focusInput" class="min-w-[8rem] flex-1 border-0 bg-transparent p-1 text-sm focus:outline-none focus:ring-0" placeholder="engineering, product, data, leadership…" autocapitalize="off">
+              </div>
+              <p class="hint">Optional. Up to 8 tags. Press Enter or comma after each.</p>
+            </div>
+            <div>
+              <label for="langInput" class="label req">Languages</label>
+              <div id="langBox" class="field flex min-h-[2.75rem] flex-wrap items-center gap-1.5">
+                <div id="langChips" class="contents"></div>
+                <input id="langInput" class="min-w-[8rem] flex-1 border-0 bg-transparent p-1 text-sm focus:outline-none focus:ring-0" placeholder="English, Portuguese…">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="s-where">
+          <h2 id="s-where" class="section-title">Where</h2>
+          <div class="mt-4 grid gap-4">
+            <div>
+              <label for="city" class="label req">City</label>
+              <div><input id="city" class="field" placeholder="Start typing and pick your city from the list"></div>
+              <p id="cityHint" class="hint">We store the city centre only, never a meeting address.</p>
+            </div>
+            <fieldset id="formatGroup">
+              <legend class="label req">Format</legend>
+              <div class="mt-2 grid gap-2 sm:grid-cols-3">
+                <label class="choice"><input type="radio" name="format" value="in_person" class="mt-0.5 h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500"><span><span class="font-medium">In person</span><span class="block text-xs text-slate-500 dark:text-slate-400">Meets face to face in the city.</span></span></label>
+                <label class="choice"><input type="radio" name="format" value="hybrid" class="mt-0.5 h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500"><span><span class="font-medium">Hybrid</span><span class="block text-xs text-slate-500 dark:text-slate-400">In person, with a video link.</span></span></label>
+                <label class="choice"><input type="radio" name="format" value="online" class="mt-0.5 h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500"><span><span class="font-medium">Online</span><span class="block text-xs text-slate-500 dark:text-slate-400">Video calls, for your country or region.</span></span></label>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="s-when">
+          <h2 id="s-when" class="section-title">When</h2>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="cadence" class="label req">How often</label>
+              <select id="cadence" class="field"><option value="weekly">Weekly</option><option value="fortnightly">Every 2 weeks</option></select>
+            </div>
+            <div>
+              <label for="day" class="label">Day</label>
+              <select id="day" class="field">
+                <option value="">Not decided</option><option value="mon">Monday</option><option value="tue">Tuesday</option><option value="wed">Wednesday</option><option value="thu">Thursday</option><option value="fri">Friday</option><option value="sat">Saturday</option><option value="sun">Sunday</option><option value="flexible">Flexible</option>
+              </select>
+            </div>
+            <div>
+              <label for="time" class="label">Start time <span id="tzLabel" class="font-normal text-slate-500"></span></label>
+              <input id="time" type="time" class="field">
+              <p class="hint">Local time in the circle's city.</p>
+            </div>
+            <div>
+              <label for="duration" class="label">Length</label>
+              <select id="duration" class="field">
+                <option value="">Ongoing</option><option value="6">6 weeks</option><option value="8">8 weeks</option><option value="10">10 weeks</option><option value="12">12 weeks</option>
+              </select>
+            </div>
+            <div>
+              <label for="starts" class="label">First meeting</label>
+              <input id="starts" type="date" class="field">
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="s-size">
+          <h2 id="s-size" class="section-title">Size &amp; status</h2>
+          <div class="mt-4 grid gap-4 sm:grid-cols-3">
+            <div>
+              <label for="capacity" class="label req">Maximum members</label>
+              <input id="capacity" type="number" min="3" max="10" value="6" class="field">
+              <p class="hint">4–8 works best.</p>
+            </div>
+            <div>
+              <label for="members" class="label req">Members so far</label>
+              <input id="members" type="number" min="1" max="10" value="1" class="field">
+              <p class="hint">Including you.</p>
+            </div>
+            <div>
+              <label for="status" class="label req">Status</label>
+              <select id="status" class="field">
+                <option value="forming">Forming: founders wanted</option><option value="open">Open: running, seats free</option><option value="full">Full</option><option value="closed">Closed</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="s-org">
+          <h2 id="s-org" class="section-title">Organizer &amp; contact</h2>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="orgName" class="label req">Your name</label>
+              <input id="orgName" class="field" maxlength="80" autocomplete="name">
+            </div>
+            <div>
+              <label for="orgGithub" class="label req">GitHub username</label>
+              <input id="orgGithub" class="field" maxlength="39" autocomplete="username" spellcheck="false" autocapitalize="off">
+              <p class="hint">Only this account can edit the circle later.</p>
+            </div>
+          </div>
+          <p class="mt-5 text-sm font-medium req">How people ask to join</p>
+          <p class="hint">At least one. <strong>This is public</strong>, so consider a dedicated address or a form link (e.g. Google Forms, Tally, Cal.com).</p>
+          <div id="contactGroup" class="mt-3 grid gap-4 rounded-lg sm:grid-cols-2">
+            <div>
+              <label for="email" class="label">Email</label>
+              <input id="email" type="email" class="field" placeholder="circle@example.com">
+            </div>
+            <div>
+              <label for="url" class="label">Form or booking link</label>
+              <input id="url" type="url" class="field" placeholder="https://…">
+            </div>
+          </div>
+        </section>
+      </form>
+
+      <aside class="lg:sticky lg:top-20 lg:self-start">
+        <div class="card space-y-4">
+          <div>
+            <div class="flex items-center justify-between text-sm">
+              <span id="progressLabel" class="font-medium">Getting started</span>
+              <span id="progressPct" class="text-slate-500">0%</span>
+            </div>
+            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+              <div id="progressBar" class="h-full rounded-full bg-brand-600 transition-all" style="width:0%"></div>
+            </div>
+          </div>
+          <ul id="issues" class="max-h-56 space-y-1 overflow-auto text-sm" aria-live="polite"></ul>
+          <button id="submitBtn" type="button" class="btn-primary w-full">Submit on GitHub</button>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="copyBtn" type="button" class="btn">Copy JSON</button>
+            <button id="downloadBtn" type="button" class="btn">Download</button>
+          </div>
+          <div id="nextSteps" class="hidden rounded-xl bg-brand-50 p-4 text-sm text-slate-800 dark:bg-brand-500/10 dark:text-slate-200"></div>
+        </div>
+        <details class="card mt-4">
+          <summary class="cursor-pointer text-sm font-medium">Preview the circle file</summary>
+          <pre id="jsonPreview" class="mt-3 max-h-[28rem] overflow-auto rounded-lg bg-slate-100 p-3 text-xs leading-relaxed dark:bg-slate-950"></pre>
+        </details>
+        <div class="card mt-4 text-sm text-slate-600 dark:text-slate-400">
+          <p class="font-semibold text-slate-900 dark:text-slate-100">Running a good circle</p>
+          <ul class="mt-2 list-disc space-y-1 pl-5">
+            <li>Rotate who facilitates each week.</li>
+            <li>Each person shares: wins, blockers, one specific ask.</li>
+            <li>Keep a shared list of target companies and referrals.</li>
+            <li>Practise interviews on each other.</li>
+            <li>Keep what's said in the circle private.</li>
+            <li>Update seats here when people join or land roles.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <div id="toast" role="status" class="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2 text-sm text-white opacity-0 shadow-lg transition-opacity dark:bg-white dark:text-slate-900"></div>
+
+<script>
+'use strict';
+
+const REPO = 'rest-of-us/job-circles';
+const DIR = 'circles/entries';
+const FEED = 'circles/index.json';
+const DRAFT_KEY = 'trou-circle-draft';
+const ORIGIN_KEY = 'trou-circle-origin';
+const MAX_PREFILL_URL = 7500;
+
+const RE = {
+  github: /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/,
+  tag: /^[a-z0-9][a-z0-9.+#-]{0,39}$/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  https: /^https:\/\/[^\s]+\.[^\s]+/
+};
+
+const state = { place: null, focus: [], languages: ['English'], showErrors: false, keep: {} };
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const val = (id) => ($('#' + id)?.value || '').trim();
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const slug = (s) => String(s || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const today = () => new Date().toISOString().slice(0, 10);
+
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg; el.style.opacity = '1';
+  clearTimeout(toast._t); toast._t = setTimeout(() => { el.style.opacity = '0'; }, 2600);
+}
+
+/* ------------------------------------------------------------------ *
+ * Chip inputs (focus tags, languages)
+ * ------------------------------------------------------------------ */
+function chipInput({ key, input, chips, box, max, normalise }) {
+  const render = () => {
+    $(chips).innerHTML = state[key].map((s) => `<span class="inline-flex items-center gap-1 rounded-md bg-brand-50 py-0.5 pl-2 pr-1 text-xs font-medium text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">${esc(s)}<button type="button" data-chip="${key}" data-v="${esc(s)}" class="rounded px-1 hover:bg-brand-100 dark:hover:bg-brand-500/20" aria-label="Remove ${esc(s)}">×</button></span>`).join('');
+  };
+  const add = (text) => {
+    for (const raw of text.split(',')) {
+      const v = normalise(raw);
+      if (!v || state[key].includes(v)) continue;
+      if (state[key].length >= max) { toast(`Up to ${max}`); break; }
+      state[key].push(v);
+    }
+    render(); update();
+  };
+  const el = $(input);
+  el.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.key === ',') && el.value.trim()) { e.preventDefault(); add(el.value); el.value = ''; }
+    else if (e.key === 'Backspace' && !el.value && state[key].length) { state[key].pop(); render(); update(); }
+  });
+  el.addEventListener('blur', () => { if (el.value.trim()) { add(el.value); el.value = ''; } });
+  $(box).addEventListener('click', (e) => { if (e.target.id === box.slice(1)) el.focus(); });
+  return render;
+}
+
+const renderFocus = chipInput({ key: 'focus', input: '#focusInput', chips: '#focusChips', box: '#focusBox', max: 8, normalise: (s) => slug(s).slice(0, 40) });
+const renderLangs = chipInput({ key: 'languages', input: '#langInput', chips: '#langChips', box: '#langBox', max: 4, normalise: (s) => { const t = s.trim(); return t ? t[0].toUpperCase() + t.slice(1, 40) : ''; } });
+
+/* ------------------------------------------------------------------ *
+ * Form ⇄ circle
+ * ------------------------------------------------------------------ */
+function circleId() {
+  const n = slug(val('name')), c = slug(state.place?.city);
+  return (n.startsWith(c) || !c ? n : `${c}-${n}`).slice(0, 80).replace(/-$/, '');
+}
+
+function collect() {
+  const p = state.place;
+  const c = { schema_version: '1.0', id: state.keep.id || circleId(), name: val('name'), description: val('description') };
+  if (state.focus.length) c.focus = [...state.focus];
+  c.languages = [...state.languages];
+  c.location = p ? { city: p.city, ...(p.admin_area && p.admin_area !== p.city ? { admin_area: p.admin_area } : {}), country: p.country, lat: p.lat, lon: p.lon } : null;
+  c.timezone = p && p.offset !== null && p.offset !== undefined ? Geo.formatOffset(p.offset) : (state.keep.timezone || '');
+  const tzName = p?.timezone || state.keep.tz_name;
+  if (tzName) c.tz_name = tzName;
+  c.format = document.querySelector('input[name="format"]:checked')?.value || '';
+  c.meeting = { cadence: val('cadence') };
+  if (val('day')) c.meeting.day = val('day');
+  if (val('time')) c.meeting.time = val('time');
+  if (val('duration')) c.meeting.duration_weeks = Number(val('duration'));
+  if (val('starts')) c.meeting.starts = val('starts');
+  c.capacity = Number(val('capacity'));
+  c.members_count = Number(val('members'));
+  c.status = val('status');
+  c.organizers = [{ name: val('orgName'), github: val('orgGithub') }, ...(state.keep.coOrganizers || [])];
+  c.contact = {};
+  if (val('email')) c.contact.email = val('email');
+  if (val('url')) c.contact.url = val('url');
+  c.created = state.keep.created || today();
+  c.updated = today();
+  return c;
+}
+
+function fill(c) {
+  const set = (id, v) => { const el = $('#' + id); if (el) el.value = v ?? ''; };
+  set('name', c.name); set('description', c.description);
+  state.focus = Array.isArray(c.focus) ? c.focus.slice(0, 8) : [];
+  state.languages = Array.isArray(c.languages) && c.languages.length ? c.languages.slice(0, 4) : ['English'];
+  renderFocus(); renderLangs();
+  if (c.location) {
+    state.place = { ...c.location, timezone: c.tz_name || '', offset: c.tz_name ? Geo.offsetOf(c.tz_name) : Geo.parseOffset(c.timezone), countryName: Geo.countryName(c.location.country) };
+    set('city', Geo.placeLabel(state.place));
+  } else { state.place = null; set('city', ''); }
+  $$('input[name="format"]').forEach((r) => { r.checked = r.value === c.format; });
+  set('cadence', c.meeting?.cadence || 'weekly'); set('day', c.meeting?.day); set('time', c.meeting?.time);
+  set('duration', c.meeting?.duration_weeks ? String(c.meeting.duration_weeks) : ''); set('starts', c.meeting?.starts);
+  set('capacity', c.capacity ?? 6); set('members', c.members_count ?? 1); set('status', c.status || 'forming');
+  set('orgName', c.organizers?.[0]?.name); set('orgGithub', c.organizers?.[0]?.github);
+  set('email', c.contact?.email); set('url', c.contact?.url);
+}
+
+// Fields the form doesn't edit, kept when updating an existing circle.
+const keepFrom = (c) => ({ id: c.id, created: c.created, timezone: c.timezone, tz_name: c.tz_name, coOrganizers: (c.organizers || []).slice(1) });
+
+/* ------------------------------------------------------------------ *
+ * Validation (mirrors circles/schema.json; CI runs the real schema)
+ * ------------------------------------------------------------------ */
+function validate(c) {
+  const errors = [];
+  const err = (el, msg) => errors.push({ el, msg });
+  if (c.name.length < 3) err('#name', 'Name the circle');
+  if (c.description.length < 20) err('#description', 'Describe the circle (at least 20 characters)');
+  if (!c.languages.length) err('#langBox', 'Add at least one language');
+  if (!c.location) err('#city', 'Pick your city from the list');
+  else if (Geo.US_AND_TERRITORIES.has(c.location.country)) err('#city', 'The Rest of US is for circles outside the US');
+  if (!c.timezone) err('#city', 'Couldn’t work out the city’s timezone. Pick it from the list again');
+  if (!c.format) err('#formatGroup', 'Choose in person, hybrid or online');
+  if (!Number.isInteger(c.capacity) || c.capacity < 3 || c.capacity > 10) err('#capacity', 'Maximum members must be 3–10');
+  if (!Number.isInteger(c.members_count) || c.members_count < 1 || c.members_count > 10) err('#members', 'Members so far must be 1–10');
+  else if (c.members_count > c.capacity) err('#members', 'Members can’t exceed the maximum');
+  if (c.organizers[0].name.length < 2) err('#orgName', 'Add your name');
+  if (!RE.github.test(c.organizers[0].github)) err('#orgGithub', 'Add a valid GitHub username');
+  if (!Object.keys(c.contact).length) err('#contactGroup', 'Add an email or a link so people can ask to join');
+  if (c.contact.email && !RE.email.test(c.contact.email)) err('#email', 'Email doesn’t look valid');
+  if (c.contact.url && !RE.https.test(c.contact.url)) err('#url', 'Link must be a full https:// URL');
+  if (c.id.length < 3) err('#name', 'Name is too short to make an ID');
+  return errors;
+}
+const REQUIRED_STEPS = 9;
+
+/* ------------------------------------------------------------------ *
+ * Render
+ * ------------------------------------------------------------------ */
+let current = null, saveTimer;
+
+function update() {
+  current = collect();
+  const errors = validate(current);
+  $$('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+  $$('.group-invalid').forEach((el) => el.classList.remove('group-invalid'));
+  for (const e of errors) {
+    const el = $(e.el);
+    if (!el) continue;
+    el.matches('input, select, textarea') ? el.setAttribute('aria-invalid', 'true') : el.classList.add('group-invalid');
+  }
+  $('#circleForm').classList.toggle('show-errors', state.showErrors);
+  const pct = errors.length ? Math.min(95, Math.round((Math.max(0, REQUIRED_STEPS - errors.length) / REQUIRED_STEPS) * 100)) : 100;
+  $('#progressBar').style.width = pct + '%';
+  $('#progressBar').classList.toggle('bg-emerald-500', !errors.length);
+  $('#progressPct').textContent = pct + '%';
+  $('#progressLabel').textContent = errors.length ? `${errors.length} item${errors.length === 1 ? '' : 's'} left` : 'Ready to submit';
+  $('#issues').innerHTML = errors.map((e, i) => `<li><button type="button" data-issue="${i}" class="flex w-full gap-2 rounded-md px-1 py-0.5 text-left hover:bg-slate-100 dark:hover:bg-slate-800"><span class="text-rose-500" aria-hidden="true">●</span>${esc(e.msg)}</button></li>`).join('');
+  update.errors = errors;
+  $('#tzLabel').textContent = current.timezone ? `(${current.timezone})` : '';
+  $$('[data-count]').forEach((el) => { el.textContent = val(el.dataset.count).length; });
+  $('#jsonPreview').textContent = JSON.stringify(current, null, 2);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ circle: current, keep: state.keep })); } catch {} }, 400);
+}
+
+function focusIssue(i) {
+  const e = update.errors?.[i];
+  const el = e && $(e.el);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  (el.matches('input, select, textarea') ? el : el.querySelector('input, select, textarea'))?.focus({ preventScroll: true });
+}
+
+/* ------------------------------------------------------------------ *
+ * Submit
+ * ------------------------------------------------------------------ */
+const circleJson = () => JSON.stringify(current, null, 2) + '\n';
+
+async function copyJson(silent) {
+  try { await navigator.clipboard.writeText(circleJson()); if (!silent) toast('Circle JSON copied'); return true; }
+  catch { if (!silent) toast('Your browser blocked the clipboard. Use Download instead.'); return false; }
+}
+
+async function exists(id) {
+  try { const r = await fetch(FEED, { cache: 'no-cache' }); const d = await r.json(); return Array.isArray(d) && d.some((c) => c.id === id); }
+  catch { return false; }
+}
+
+async function submit() {
+  state.showErrors = true;
+  update();
+  if (update.errors.length) { toast(`${update.errors.length} item${update.errors.length === 1 ? '' : 's'} still need attention`); focusIssue(0); return; }
+
+  const win = window.open('about:blank', '_blank');
+  const file = `${current.id}.json`;
+  const base = `https://github.com/${REPO}`;
+  let url, steps;
+  if (await exists(current.id)) {
+    url = `${base}/edit/main/${DIR}/${encodeURIComponent(file)}`;
+    const copied = await copyJson(true);
+    steps = `<p class="font-semibold">Update your circle</p><ol class="mt-2 list-decimal space-y-1 pl-5"><li>${copied ? 'The updated file is on your clipboard.' : 'Click <strong>Copy JSON</strong>.'}</li><li>In GitHub, select all the text and paste over it.</li><li><strong>Commit changes… → Propose changes → Create pull request</strong>.</li></ol>`;
+  } else {
+    url = `${base}/new/main/${DIR}?filename=${encodeURIComponent(file)}&value=${encodeURIComponent(circleJson())}`;
+    if (url.length > MAX_PREFILL_URL) {
+      url = `${base}/new/main/${DIR}?filename=${encodeURIComponent(file)}`;
+      const copied = await copyJson(true);
+      steps = `<p class="font-semibold">Almost there</p><ol class="mt-2 list-decimal space-y-1 pl-5"><li>${copied ? 'The file is on your clipboard.' : 'Click <strong>Copy JSON</strong>.'} Paste it into the GitHub editor.</li><li><strong>Commit changes… → Propose changes → Create pull request</strong>.</li></ol>`;
+    } else {
+      steps = `<p class="font-semibold">GitHub is open with your circle ready</p><ol class="mt-2 list-decimal space-y-1 pl-5"><li>Sign in as <strong>@${esc(current.organizers[0].github)}</strong> if asked.</li><li>Click <strong>Commit changes…</strong>, then <strong>Propose changes</strong>.</li><li>Click <strong>Create pull request</strong>. Your circle appears on the map once it's merged.</li></ol>`;
+    }
+  }
+  steps += `<p class="mt-3">Tab didn't open? <a class="font-medium text-brand-700 underline dark:text-brand-400" href="${esc(url)}" target="_blank" rel="noopener">Open GitHub</a></p>`;
+  $('#nextSteps').innerHTML = steps;
+  $('#nextSteps').classList.remove('hidden');
+  if (win) { win.opener = null; win.location.href = url; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Init
+ * ------------------------------------------------------------------ */
+function confirmClear() {
+  const btn = $('#clearDraft');
+  if (btn.dataset.armed) { delete btn.dataset.armed; btn.textContent = 'Start over'; return true; }
+  btn.dataset.armed = '1'; btn.textContent = 'Click again to clear';
+  setTimeout(() => { delete btn.dataset.armed; btn.textContent = 'Start over'; }, 3000);
+  return false;
+}
+
+function bind() {
+  const form = $('#circleForm');
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  form.addEventListener('submit', (e) => e.preventDefault());
+
+  Geo.attachCityPicker($('#city'), (p) => { state.place = p; update(); }, { onInput: () => { state.place = null; } });
+
+  document.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-chip]');
+    if (chip) {
+      const k = chip.dataset.chip;
+      state[k] = state[k].filter((v) => v !== chip.dataset.v);
+      (k === 'focus' ? renderFocus : renderLangs)(); update();
+    }
+  });
+  $('#issues').addEventListener('click', (e) => { const b = e.target.closest('[data-issue]'); if (b) focusIssue(Number(b.dataset.issue)); });
+  $('#submitBtn').addEventListener('click', submit);
+  $('#copyBtn').addEventListener('click', () => copyJson(false));
+  $('#downloadBtn').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([circleJson()], { type: 'application/json' }));
+    a.download = `${current.id || 'circle'}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('#importFile').addEventListener('change', async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    try { const c = JSON.parse(await f.text()); if (!c || typeof c !== 'object' || Array.isArray(c)) throw 0; fill(c); state.keep = c.id ? keepFrom(c) : {}; update(); toast('Circle imported'); }
+    catch { toast('That file isn’t a valid circle JSON'); }
+    e.target.value = '';
+  });
+  $('#clearDraft').addEventListener('click', () => {
+    if (!confirmClear()) return;
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+    form.reset(); state.showErrors = false; state.keep = {}; fill({}); $('#nextSteps').classList.add('hidden'); update(); toast('Form cleared');
+  });
+  $('#themeToggle').addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    try { localStorage.setItem('trou-theme', dark ? 'dark' : 'light'); } catch {}
+  });
+}
+
+function init() {
+  bind();
+  let draft = null, origin = null;
+  try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch {}
+  try { origin = JSON.parse(sessionStorage.getItem(ORIGIN_KEY) || 'null'); } catch {}
+  if (draft?.circle) {
+    fill(draft.circle);
+    state.keep = draft.keep || {};
+  } else {
+    fill({});
+    // Coming from the finder with a city picked: start the circle there.
+    if (origin?.city && Number.isFinite(origin.lat)) {
+      state.place = { city: origin.city, admin_area: origin.admin_area || '', timezone: origin.timezone || '', country: origin.country, countryName: Geo.countryName(origin.country), lat: origin.lat, lon: origin.lon, offset: origin.offset };
+      $('#city').value = Geo.placeLabel(state.place);
+    }
+  }
+  update();
+}
+
+init();
+</script>
+</body>
+</html>

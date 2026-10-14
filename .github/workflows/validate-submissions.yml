@@ -1,9 +1,10 @@
-name: Validate profiles
+name: Validate submissions
 
 on:
   pull_request:
     paths:
       - 'profiles/community/**'
+      - 'circles/entries/**'
 
 permissions:
   contents: read
@@ -25,6 +26,13 @@ jobs:
 
       - name: Check profile changes
         run: node scripts/validate-profiles.mjs profiles/community
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+
+      - name: Check circle changes
+        if: success() || failure()
+        run: node scripts/validate-circles.mjs circles/entries
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}

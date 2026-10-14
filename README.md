@@ -41,7 +41,11 @@ This project takes a different approach:
 | [`profiles/schema.json`](profiles/schema.json) | JSON Schema (draft 2020-12) that every candidate profile must pass. |
 | [`join.html`](join.html) | Profile builder: a form that checks entries as you type and opens a pre-filled GitHub pull request. |
 | [`profiles/demo.json`](profiles/demo.json) | Fictional sample profiles so the UI works before any hub goes live. They are labelled "Sample" in the UI. |
-| [`profiles/community/`](profiles/community) | Community hub for regions without a hub yet. [`validate-profiles.yml`](.github/workflows/validate-profiles.yml) checks PRs; [`build-community-feed.yml`](.github/workflows/build-community-feed.yml) rebuilds `profiles/community.json` on merge. |
+| [`profiles/community/`](profiles/community) | Community hub for regions without a hub yet. |
+| [`circles.html`](circles.html) · [`start-circle.html`](start-circle.html) | Peer circle finder (map, in-person-first matching) and the form to start a circle. |
+| [`circles/`](circles) | Circle schema, sample circles, and one file per circle in `circles/entries/`, merged into `circles/index.json`. |
+| [`assets/`](assets) | Shared scripts: `geo.js` (city search, distances, timezones) and `jobflo.js` (JobFlo cross-promotion copy). |
+| [`.github/workflows/`](.github/workflows) | `validate-submissions.yml` checks profile and circle PRs; `build-feeds.yml` rebuilds the feeds on merge. |
 
 ---
 
@@ -86,6 +90,29 @@ A vouch is a short, signed statement from someone who worked with you.
 Valid relationships are `manager`, `direct_report`, `peer`, `tech_lead`, `client`, `open_source_collaborator` and `mentor`.
 
 ---
+
+## Peer circles
+
+A peer circle is a small group (4–8) of senior people between roles who meet weekly or fortnightly to share leads, practise interviews and keep each other accountable, in the spirit of [Never Search Alone](https://www.neversearchalone.org/)'s Job Search Councils.
+
+What's different here is that **matching is geographic first**. Most job-search advice and groups default to the US market. A circle in your own city shares your recruiters, salary bands, employment law and timezone, and can meet in person.
+
+**Finding a circle** ([circles.html](https://rest-of-us.github.io/job-circles/circles.html)): type your city or use your location. Results come in three tiers:
+
+1. **Meet in person:** in-person and hybrid circles within your chosen radius (10–200 km), ordered by open seats, then distance.
+2. **Online in your region:** online and hybrid circles in your country, or within about 3,000 km and two hours of your timezone.
+3. **Further away:** everything else, collapsed.
+
+If there's nothing nearby, the page offers to **start a circle in your city**, so the next person who searches there finds it.
+
+**Privacy model:** circles are public; seekers are not.
+
+- Your location is only used in your browser. "Use my location" never leaves the page, and city search sends only the typed name to [Open-Meteo's geocoding API](https://open-meteo.com/en/docs/geocoding-api).
+- Circles store the city centre (coordinates rounded to ~1 km), never a meeting address.
+- Only organizers are named. Circles publish a member count, never a member list.
+- People ask to join privately, by email or a form link. There's no public issue thread.
+
+**Starting a circle** ([start-circle.html](https://rest-of-us.github.io/job-circles/start-circle.html)): fill in the form and click **Submit on GitHub**. A pull request adds `circles/entries/<id>.json`. The automated checks confirm that the circle passes [`circles/schema.json`](circles/schema.json), that the PR author is an organizer, and that coordinates are city-level. On merge, `circles/index.json` is rebuilt and the circle appears on the map. Organizers keep seats and status up to date with the "Organizer? Update seats" link on their circle.
 
 ## Launching a regional hub
 

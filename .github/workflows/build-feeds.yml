@@ -1,10 +1,11 @@
-name: Build community feed
+name: Build feeds
 
 on:
   push:
     branches: [main]
     paths:
       - 'profiles/community/**'
+      - 'circles/entries/**'
   workflow_dispatch:
 
 permissions:
@@ -12,7 +13,7 @@ permissions:
   pages: write
 
 concurrency:
-  group: community-feed
+  group: feeds
   cancel-in-progress: false
 
 jobs:
@@ -25,21 +26,23 @@ jobs:
         with:
           node-version: 20
 
-      - name: Merge profiles into profiles/community.json
-        run: node scripts/build-community-feed.mjs
+      - name: Merge entries into feeds
+        run: |
+          node scripts/build-feed.mjs profiles/community profiles/community.json
+          node scripts/build-feed.mjs circles/entries circles/index.json
 
-      - name: Commit feed
+      - name: Commit feeds
         id: commit
         run: |
-          if git diff --quiet -- profiles/community.json; then
-            echo "Feed unchanged."
+          if git diff --quiet -- profiles/community.json circles/index.json; then
+            echo "Feeds unchanged."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add profiles/community.json
-          git commit -m "Rebuild community profile feed"
+          git add profiles/community.json circles/index.json
+          git commit -m "Rebuild profile and circle feeds"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
