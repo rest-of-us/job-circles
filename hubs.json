@@ -14,7 +14,7 @@
         "UTC",
         "UTC+1"
       ],
-      "status": "active",
+      "status": "planned",
       "submit": {
         "repository": "rest-of-us/hub-uk",
         "branch": "main",
@@ -36,7 +36,7 @@
         "UTC-4",
         "UTC-3:30"
       ],
-      "status": "active",
+      "status": "planned",
       "submit": {
         "repository": "rest-of-us/hub-canada",
         "branch": "main",
@@ -56,7 +56,7 @@
         "UTC-4",
         "UTC-3"
       ],
-      "status": "active",
+      "status": "planned",
       "submit": {
         "repository": "rest-of-us/hub-latam",
         "branch": "main",
@@ -78,7 +78,7 @@
         "UTC+10",
         "UTC+12"
       ],
-      "status": "active",
+      "status": "planned",
       "submit": {
         "repository": "rest-of-us/hub-apac",
         "branch": "main",

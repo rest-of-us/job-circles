@@ -118,7 +118,7 @@ If there's nothing nearby, the page offers to **start a circle in your city**, s
 
 Anyone can start a hub for a region that doesn't have one, or a region-specific community (a country, or a city).
 
-1. **Create the repo from the template.** Go to [`rest-of-us/hub-template`](https://github.com/rest-of-us/hub-template) and click **Use this template**. Name it `hub-<region>` (for example `hub-nordics`). Hubs can live under the `rest-of-us` account (ask in an issue) or in your own account or organization.
+1. **Create the repo.** _A `hub-template` repository is planned but doesn't exist yet. Until then, open an issue on this repo to coordinate._ Once it exists: go to `rest-of-us/hub-template` and click **Use this template**. Name it `hub-<region>` (for example `hub-nordics`). Hubs can live under the `rest-of-us` account (ask in an issue) or in your own account or organization.
 2. **Enable GitHub Pages:** go to *Settings → Pages → Build and deployment → Source: GitHub Actions*.
 3. **Check the workflows.** The template ships two:
    - `validate.yml` runs on every PR. It validates each `profiles/*.json` against the central schema, checks that the file name matches `id`, and checks that the PR author matches the profile's `github` handle (or the `vouched_by_github` of any added vouch).
@@ -148,7 +148,7 @@ The UI accepts any of these at `profiles_url`:
 
 Feeds must be served with CORS enabled. GitHub Pages and `raw.githubusercontent.com` both do this by default. If a hub is unreachable, the UI shows it as *offline* and keeps showing results from the other hubs.
 
-Hub `status` is one of `active`, `demo` (results labelled as samples) or `disabled` (skipped).
+Hub `status` is one of `active`, `planned` (listed as "Coming soon" and not fetched; submissions for that region go to the community hub), `demo` (results labelled as samples) or `disabled` (skipped). When a planned hub's repository and feed are live, change its status to `active`.
 
 ---
 

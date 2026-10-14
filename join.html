@@ -693,7 +693,7 @@ async function loadHubs() {
   try {
     const res = await fetch('hubs.json', { cache: 'no-cache' });
     const reg = await res.json();
-    state.hubs = (reg.hubs || []).filter((h) => h.submit && h.status !== 'disabled' && h.status !== 'demo');
+    state.hubs = (reg.hubs || []).filter((h) => h.submit && !['disabled', 'demo', 'planned'].includes(h.status));
   } catch { state.hubs = []; }
 
   await Promise.all(state.hubs.map(async (h) => {
