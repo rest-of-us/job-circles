@@ -53,6 +53,20 @@
         </div>
       </div>`,
 
+    strip: () => `
+      <div class="border-b border-slate-200 bg-gradient-to-r from-brand-50 to-white dark:border-slate-800 dark:from-brand-500/10 dark:to-slate-950">
+        <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-6">
+          ${icon(32)}
+          <p class="min-w-0 flex-1 text-sm leading-snug">
+            <span class="font-semibold">${APP.name}</span>
+            <span class="hidden sm:inline">: track every application and spot ghost jobs before you apply. Private, on ${APP.platforms}.</span>
+            <span class="sm:hidden">: track applications, spot ghost jobs.</span>
+            <span class="hidden text-xs text-slate-500 dark:text-slate-400 lg:inline">· Made by a contributor</span>
+          </p>
+          ${cta('shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200').replace('Get JobFlo on the App Store', '<span class="sm:hidden">Get it</span><span class="hidden sm:inline">Get JobFlo</span>')}
+        </div>
+      </div>`,
+
     card: (el) => `
       <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
         <div class="flex items-start gap-3">
