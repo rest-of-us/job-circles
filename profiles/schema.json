@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://rest-of-us.github.io/job-circles/profiles/schema.json",
   "title": "The Rest of US — Candidate Profile",
-  "description": "A candidate profile for senior tech talent outside the US. The schema deliberately has no fields for birth dates, graduation years, employment start/end dates or total years of experience, and it rejects unknown properties so those can't be added. Candidates are judged on what they built and the impact it had, not on when. Version 1.1 adds pseudonymous handles, encoded private contact methods (no plain email addresses) and optional cryptographically signed vouches.",
+  "description": "A candidate profile for senior tech talent, in the US and around the world. The schema deliberately has no fields for birth dates, graduation years, employment start/end dates or total years of experience, and it rejects unknown properties so those can't be added. Candidates are judged on what they built and the impact it had, not on when. Version 1.1 adds pseudonymous handles, encoded private contact methods (no plain email addresses) and optional cryptographically signed vouches.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -101,6 +101,7 @@
         "uk",
         "europe",
         "canada",
+        "us",
         "latam",
         "apac",
         "africa",

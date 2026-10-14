@@ -376,7 +376,6 @@ function validate(c) {
   if (c.description.length < 20) err('#description', 'Describe the circle (at least 20 characters)');
   if (!c.languages.length) err('#langBox', 'Add at least one language');
   if (!c.location) err('#city', 'Pick your city from the list');
-  else if (Geo.US_AND_TERRITORIES.has(c.location.country)) err('#city', 'The Rest of US is for circles outside the US');
   if (!c.timezone) err('#city', 'Couldn’t work out the city’s timezone. Pick it from the list again');
   if (!c.format) err('#formatGroup', 'Choose in person, hybrid or online');
   if (!Number.isInteger(c.capacity) || c.capacity < 3 || c.capacity > 10) err('#capacity', 'Maximum members must be 3–10');

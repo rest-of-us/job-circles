@@ -65,8 +65,7 @@
         "country": {
           "type": "string",
           "pattern": "^[A-Z]{2}$",
-          "not": { "enum": ["US", "PR", "VI", "GU", "AS", "MP", "UM"] },
-          "description": "ISO 3166-1 alpha-2 country code. The project is for talent outside the US."
+          "description": "ISO 3166-1 alpha-2 country code."
         },
         "lat": { "type": "number", "minimum": -90, "maximum": 90 },
         "lon": { "type": "number", "minimum": -180, "maximum": 180 }

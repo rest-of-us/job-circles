@@ -4,7 +4,7 @@
 
 🌍 **Live site:** https://rest-of-us.github.io/job-circles
 
-The Rest of US is an open-source, decentralized directory of senior tech talent based outside the United States. Experienced engineers, architects and technical leaders in the UK, Canada, Latin America, Asia-Pacific and beyond are routinely screened out by keyword-matching ATS tools, location checks and age proxies such as graduation years, before a human reads their CV.
+The Rest of US is an open-source, decentralized directory of senior tech talent in the United States and around the world. Experienced engineers, architects and technical leaders in the UK, Canada, the US, Latin America, Asia-Pacific and beyond are routinely screened out by keyword-matching ATS tools, location checks and age proxies such as graduation years, before a human reads their CV.
 
 This project takes a different approach:
 
@@ -18,7 +18,7 @@ This project takes a different approach:
 
 ## How it works
 
-**In short:** it's a public list of experienced tech people outside the US. You add yourself, colleagues back you up, and recruiters get in touch with you directly. It's free, and nobody sits in the middle.
+**In short:** it's a public list of experienced tech people, in the US and around the world. You add yourself, colleagues back you up, and recruiters get in touch with you directly. It's free, and nobody sits in the middle.
 
 **If you're looking for work**
 
@@ -44,7 +44,7 @@ This project takes a different approach:
 - **What is GitHub, and why do I need it?** GitHub is a free website for storing and sharing files, used by most software teams. Profiles live there instead of in our own database, so no single company owns or controls them. You'll need a free GitHub account to add a profile or a vouch. Searching doesn't need one.
 - **Why no dates or years of experience?** Dates are how automated hiring filters guess someone's age and screen them out. Here you're judged on what you built and what changed because of it.
 - **Who can see my profile?** Everyone. Your profile is public, so only include what you're happy to share. You can use a nickname instead of your real name. Your contact details are scrambled so automated bots can't easily collect them, but anyone who clicks **Reveal contact** can read them.
-- **Who runs it?** Volunteers. Profiles are grouped into regional hubs (UK, Canada and so on), each looked after by its own maintainers. The website searches all of them at once. You can change or remove your profile at any time.
+- **Who runs it?** Volunteers. Profiles are grouped into regional hubs (UK, Canada, the US and so on), each looked after by its own maintainers. The website searches all of them at once. You can change or remove your profile at any time.
 
 ---
 

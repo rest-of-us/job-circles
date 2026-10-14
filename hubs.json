@@ -55,6 +55,29 @@
       }
     },
     {
+      "id": "us",
+      "name": "United States",
+      "region": "us",
+      "description": "Senior tech talent across the United States and its territories.",
+      "repository": "https://github.com/rest-of-us/hub-us",
+      "profiles_url": "https://rest-of-us.github.io/hub-us/profiles.json",
+      "timezones": [
+        "UTC-10",
+        "UTC-9",
+        "UTC-8",
+        "UTC-7",
+        "UTC-6",
+        "UTC-5",
+        "UTC-4"
+      ],
+      "status": "planned",
+      "submit": {
+        "repository": "rest-of-us/hub-us",
+        "branch": "main",
+        "path": "profiles"
+      }
+    },
+    {
       "id": "latam",
       "name": "Latin America",
       "region": "latam",

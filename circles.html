@@ -467,16 +467,13 @@ function jumpTo(id) {
 function setOrigin(o) {
   state.origin = o;
   try { sessionStorage.setItem(ORIGIN_KEY, JSON.stringify(o)); } catch {}
-  if (o.isUS) {
-    $('#placeNote').textContent = 'The Rest of US is for people outside the US, so there are no circles there. The results below are the nearest ones.';
-  }
   render();
 }
 
 function bind() {
   Geo.attachCityPicker($('#place'), (p) => setOrigin({
     lat: p.lat, lon: p.lon, country: p.country, offset: p.offset, city: p.city,
-    admin_area: p.admin_area, timezone: p.timezone, label: p.city, isUS: p.isUS
+    admin_area: p.admin_area, timezone: p.timezone, label: p.city
   }));
 
   $('#useLocation').addEventListener('click', () => {

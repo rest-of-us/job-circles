@@ -249,7 +249,7 @@ Compare the reported key fingerprint with the vouch's `public_key_fingerprint`.
     {
       "id": "community",                         // unique within this registry
       "name": "Community (all regions)",
-      "region": "global",                        // uk | europe | canada | latam | apac | africa | middle-east | global
+      "region": "global",                        // uk | europe | canada | us | latam | apac | africa | middle-east | global
       "description": "…",
       "repository": "https://github.com/owner/repo",
       "profiles_url": "./profiles/community.json",   // relative to this hubs.json, or absolute

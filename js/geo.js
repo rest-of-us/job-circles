@@ -7,7 +7,6 @@
 
 window.Geo = (() => {
   const GEOCODER = 'https://geocoding-api.open-meteo.com/v1/search';
-  const US_AND_TERRITORIES = new Set(['US', 'PR', 'VI', 'GU', 'AS', 'MP', 'UM']);
 
   let regionNames = null;
   try { regionNames = new Intl.DisplayNames(['en'], { type: 'region' }); } catch {}
@@ -64,8 +63,7 @@ window.Geo = (() => {
       lat: round2(r.latitude),
       lon: round2(r.longitude),
       timezone: r.timezone || '',
-      offset: r.timezone ? offsetOf(r.timezone) : null,
-      isUS: US_AND_TERRITORIES.has(r.country_code)
+      offset: r.timezone ? offsetOf(r.timezone) : null
     }));
   }
 
@@ -152,5 +150,5 @@ window.Geo = (() => {
     input.addEventListener('blur', () => setTimeout(close, 120));
   }
 
-  return { search, distanceKm, offsetOf, deviceOffset, parseOffset, formatOffset, round2, countryName, placeLabel, attachCityPicker, US_AND_TERRITORIES };
+  return { search, distanceKm, offsetOf, deviceOffset, parseOffset, formatOffset, round2, countryName, placeLabel, attachCityPicker };
 })();

@@ -338,7 +338,7 @@ const DRAFT_KEY = 'trou-draft';
 const MAX_PREFILL_URL = 7500;   // GitHub rejects very long URLs; past this we use the clipboard.
 
 const SENIORITY = { senior: 'Senior', staff: 'Staff', principal: 'Principal', distinguished: 'Distinguished', director: 'Director', vp: 'VP', cto: 'CTO' };
-const REGIONS = { uk: 'UK & Ireland', europe: 'Europe', canada: 'Canada', latam: 'Latin America', apac: 'Asia-Pacific', africa: 'Africa', 'middle-east': 'Middle East' };
+const REGIONS = { uk: 'UK & Ireland', europe: 'Europe', canada: 'Canada', us: 'United States', latam: 'Latin America', apac: 'Asia-Pacific', africa: 'Africa', 'middle-east': 'Middle East' };
 const PREFS = {
   contract_b2b: ['Contract (B2B)', 'You invoice through your own company.'],
   fulltime_eor: ['Full-time via EOR', 'Employed through an Employer of Record.'],
@@ -351,11 +351,12 @@ const POW_TYPES = { repository: 'Repository', open_source_contribution: 'Open-so
 const PROFICIENCY = { native: 'Native', fluent: 'Fluent', professional: 'Professional', conversational: 'Conversational' };
 const TZ_OFFSETS = [-12, -11, -10, -9.5, -9, -8, -7, -6, -5, -4, -3.5, -3, -2, -1, 0, 1, 2, 3, 3.5, 4, 4.5, 5, 5.5, 5.75, 6, 6.5, 7, 8, 8.75, 9, 9.5, 10, 10.5, 11, 12, 12.75, 13, 13.75, 14];
 
-// ISO 3166-1 alpha-2, excluding the US and its territories.
-const COUNTRIES = 'AD AE AF AG AI AL AM AO AR AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UY UZ VA VC VE VG VN VU WF WS XK YE YT ZA ZM ZW'.split(' ');
+// ISO 3166-1 alpha-2.
+const COUNTRIES = 'AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW'.split(' ');
 const COUNTRY_REGION = {
   uk: 'GB IE IM JE GG',
   canada: 'CA',
+  us: 'US PR VI GU AS MP UM',
   latam: 'AR BO BR CL CO CR CU DO EC SV GT HN MX NI PA PY PE UY VE BZ GY SR JM TT HT BS BB AG DM GD KN LC VC AI AW BQ CW SX KY TC VG MS BL MF GP MQ GF FK BM',
   apac: 'AU NZ IN PK BD LK NP BT MV CN HK MO TW JP KR KP MN SG MY ID TH VN PH KH LA MM BN TL PG FJ SB VU NC PF WS TO KI TV NR FM MH PW CK NU TK WF CC CX NF PN AF KZ KG TJ TM UZ',
   'middle-east': 'AE SA QA KW BH OM YE IQ IR IL PS JO LB SY',
