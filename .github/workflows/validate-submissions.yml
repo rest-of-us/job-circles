@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'profiles/community/**'
+      - 'profiles/us/**'
+      - 'profiles/africa/**'
+      - 'profiles/middle-east/**'
       - 'circles/entries/**'
 
 permissions:
@@ -32,7 +35,14 @@ jobs:
           cd "$RUNNER_TEMP/trusted" && npm install --no-save --no-package-lock ajv@8 ajv-formats@3
 
       - name: Check profile changes
-        run: node "$RUNNER_TEMP/trusted/scripts/validate-profiles.mjs" profiles/community
+        # Community takes any region; each regional folder only takes its own.
+        run: |
+          status=0
+          node "$RUNNER_TEMP/trusted/scripts/validate-profiles.mjs" profiles/community || status=1
+          for hub in us africa middle-east; do
+            node "$RUNNER_TEMP/trusted/scripts/validate-profiles.mjs" "profiles/$hub" "$hub" || status=1
+          done
+          exit $status
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}

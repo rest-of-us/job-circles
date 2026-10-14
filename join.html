@@ -338,7 +338,7 @@ const DRAFT_KEY = 'trou-draft';
 const MAX_PREFILL_URL = 7500;   // GitHub rejects very long URLs; past this we use the clipboard.
 
 const SENIORITY = { senior: 'Senior', staff: 'Staff', principal: 'Principal', distinguished: 'Distinguished', director: 'Director', vp: 'VP', cto: 'CTO' };
-const REGIONS = { uk: 'UK & Ireland', europe: 'Europe', canada: 'Canada', us: 'United States', latam: 'Latin America', apac: 'Asia-Pacific', africa: 'Africa', 'middle-east': 'Middle East' };
+const REGIONS = { uk: 'UK & Ireland', europe: 'Europe', canada: 'Canada', us: 'United States', latam: 'Latin America', apac: 'Asia-Pacific', africa: 'Africa', 'middle-east': 'Middle East (Western Asia)' };
 const PREFS = {
   contract_b2b: ['Contract (B2B)', 'You invoice through your own company.'],
   fulltime_eor: ['Full-time via EOR', 'Employed through an Employer of Record.'],
@@ -359,7 +359,7 @@ const COUNTRY_REGION = {
   us: 'US PR VI GU AS MP UM',
   latam: 'AR BO BR CL CO CR CU DO EC SV GT HN MX NI PA PY PE UY VE BZ GY SR JM TT HT BS BB AG DM GD KN LC VC AI AW BQ CW SX KY TC VG MS BL MF GP MQ GF FK BM',
   apac: 'AU NZ IN PK BD LK NP BT MV CN HK MO TW JP KR KP MN SG MY ID TH VN PH KH LA MM BN TL PG FJ SB VU NC PF WS TO KI TV NR FM MH PW CK NU TK WF CC CX NF PN AF KZ KG TJ TM UZ',
-  'middle-east': 'AE SA QA KW BH OM YE IQ IR IL PS JO LB SY',
+  'middle-east': 'AE SA QA KW BH OM YE IQ IR IL PS JO LB SY TR CY GE AM AZ',
   africa: 'DZ AO BJ BW BF BI CV CM CF TD KM CD CG CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU YT MA MZ NA NE NG RE RW SH ST SN SC SL SO ZA SS SD TZ TG TN UG EH ZM ZW'
 };
 
@@ -760,8 +760,10 @@ async function loadHubs() {
     state.hubs = (reg.hubs || []).filter((h) => h.submit && !['disabled', 'demo', 'planned'].includes(h.status));
   } catch { state.hubs = []; }
 
+  // Hubs hosted in the same repository as an always-open hub (e.g. us, africa) need no check.
+  const openRepos = new Set(state.hubs.filter((h) => h.always_open).map((h) => h.submit.repository));
   await Promise.all(state.hubs.map(async (h) => {
-    if (h.always_open) { state.hubAvailable[h.id] = true; return; }
+    if (h.always_open || openRepos.has(h.submit.repository)) { state.hubAvailable[h.id] = true; return; }
     try {
       // Cached, to stay well under GitHub's 60 requests/hour limit for anonymous API calls.
       await Hubs.cachedFetch(`https://api.github.com/repos/${h.submit.repository}`);

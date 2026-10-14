@@ -1,10 +1,11 @@
 // Validates profile changes in a pull request.
 //
-//   BASE_SHA=<sha> PR_AUTHOR=<login> node scripts/validate-profiles.mjs [dir]
+//   BASE_SHA=<sha> PR_AUTHOR=<login> node scripts/validate-profiles.mjs [dir] [region]
 //
 // Rules:
 //   - every added or modified profile must pass profiles/schema.json;
 //   - the file name must be <id>.json and the profile must name its owner in `github`;
+//   - if [region] is given, every profile in [dir] must have that region;
 //   - the profile owner may change anything except vouches from other people;
 //   - anyone else may only add, edit or remove their own vouch;
 //   - only the owner may delete a profile;
@@ -22,6 +23,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
 const DIR = (process.argv[2] || 'profiles/community').replace(/\/$/, '');
+const REGION = process.argv[3] || '';
 const { BASE_SHA, PR_AUTHOR } = process.env;
 if (!BASE_SHA || !PR_AUTHOR) {
   console.error('BASE_SHA and PR_AUTHOR must be set');
@@ -136,6 +138,7 @@ for (const { status, file } of changes) {
     for (const e of validateSchema.errors) fail(file, `Schema: ${e.instancePath || '(root)'} ${e.message}${e.params?.additionalProperty ? ` (“${e.params.additionalProperty}”)` : ''}`);
   }
   if (basename(file) !== `${after.id}.json`) fail(file, `File name must be "${after.id}.json" to match the profile id.`);
+  if (REGION && after.region !== REGION) fail(file, `Profiles in ${DIR}/ must have "region": "${REGION}".`);
   if (!after.github) { fail(file, 'Profiles must include the owner\'s "github" username.'); continue; }
   if (after.id !== String(after.github).toLowerCase()) fail(file, `"id" must be the lowercase GitHub username ("${String(after.github).toLowerCase()}").`);
 

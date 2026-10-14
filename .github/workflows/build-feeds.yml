@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'profiles/community/**'
+      - 'profiles/us/**'
+      - 'profiles/africa/**'
+      - 'profiles/middle-east/**'
       - 'circles/entries/**'
   workflow_dispatch:
 
@@ -28,20 +31,22 @@ jobs:
 
       - name: Merge entries into feeds
         run: |
-          node scripts/build-feed.mjs profiles/community profiles/community.json
+          for hub in community us africa middle-east; do
+            node scripts/build-feed.mjs "profiles/$hub" "profiles/$hub.json"
+          done
           node scripts/build-feed.mjs circles/entries circles/index.json
 
       - name: Commit feeds
         id: commit
         run: |
-          if git diff --quiet -- profiles/community.json circles/index.json; then
+          if git diff --quiet -- profiles/*.json circles/index.json; then
             echo "Feeds unchanged."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add profiles/community.json circles/index.json
+          git add profiles/*.json circles/index.json
           git commit -m "Rebuild profile and circle feeds"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"

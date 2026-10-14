@@ -74,6 +74,7 @@ This project takes a different approach:
 | [`join.html`](join.html) | Profile builder: a form that checks entries as you type and opens a pre-filled GitHub pull request. |
 | [`profiles/demo.json`](profiles/demo.json) | Fictional sample profiles so the UI works before any hub goes live. They are labelled "Sample" in the UI. |
 | [`profiles/community/`](profiles/community) | Community hub for regions without a hub yet. |
+| [`profiles/us/`](profiles/us) · [`profiles/africa/`](profiles/africa) · [`profiles/middle-east/`](profiles/middle-east) | Regional hubs hosted in this repository. Each folder only accepts profiles with its own `region`. |
 | [`circles.html`](circles.html) · [`start-circle.html`](start-circle.html) | Peer circle finder (map, in-person-first matching) and the form to start a circle. |
 | [`circles/`](circles) | Circle schema, sample circles, and one file per circle in `circles/entries/`, merged into `circles/index.json`. |
 | [`js/`](js) | Shared scripts: `hubs.js` (hub discovery, federation and IndexedDB caching), `geo.js` (city search, distances, timezones) and `jobflo.js` (JobFlo cross-promotion copy). |
@@ -84,11 +85,11 @@ This project takes a different approach:
 
 ## For candidates
 
-**The easy way: use the [profile builder](https://rest-of-us.github.io/job-circles/join.html).** Fill in the form, which checks your entries as you type, and click **Submit on GitHub**. GitHub opens with your file already filled in, and you click **Propose changes** and then **Create pull request**. You only need a free GitHub account. If your region's hub isn't open yet, your profile goes to the community hub in this repository and moves to the regional hub once it launches.
+**The easy way: use the [profile builder](https://rest-of-us.github.io/job-circles/join.html).** Fill in the form, which checks your entries as you type, and click **Submit on GitHub**. GitHub opens with your file already filled in, and you click **Propose changes** and then **Create pull request**. You only need a free GitHub account. The United States, Africa and Middle East (Western Asia) hubs live in this repository, so those profiles are added here. If your region's hub isn't open yet, your profile goes to the community hub, also in this repository, and moves to the regional hub once it launches.
 
 **The manual way:**
 
-1. **Find your hub** in [`hubs.json`](hubs.json) or under [Hubs & feeds](https://rest-of-us.github.io/job-circles/#hubs) on the site. If your region has no hub yet, use [`profiles/community/`](profiles/community) in this repository.
+1. **Find your hub** in [`hubs.json`](hubs.json) or under [Hubs & feeds](https://rest-of-us.github.io/job-circles/#hubs) on the site. The United States, Africa and Middle East (Western Asia) hubs are folders in this repository: [`profiles/us/`](profiles/us), [`profiles/africa/`](profiles/africa) and [`profiles/middle-east/`](profiles/middle-east). If your region has no hub yet, use [`profiles/community/`](profiles/community).
 2. **Fork the hub repository** and create `profiles/<your-github-handle>.json`. Start from one of the entries in [`profiles/demo.json`](profiles/demo.json).
 3. **Write about impact.** Fill in `major_impact` with the systems you designed and what changed because of them: scale, latency, cost, reliability, team growth. Leave out dates; the schema rejects them.
 4. **Validate locally** (optional; CI does this too):

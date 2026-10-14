@@ -59,8 +59,8 @@
       "name": "United States",
       "region": "us",
       "description": "Senior tech talent across the United States and its territories.",
-      "repository": "https://github.com/rest-of-us/hub-us",
-      "profiles_url": "https://rest-of-us.github.io/hub-us/profiles.json",
+      "repository": "https://github.com/rest-of-us/job-circles",
+      "profiles_url": "profiles/us.json",
       "timezones": [
         "UTC-10",
         "UTC-9",
@@ -70,11 +70,11 @@
         "UTC-5",
         "UTC-4"
       ],
-      "status": "planned",
+      "status": "active",
       "submit": {
-        "repository": "rest-of-us/hub-us",
+        "repository": "rest-of-us/job-circles",
         "branch": "main",
-        "path": "profiles"
+        "path": "profiles/us"
       }
     },
     {
@@ -117,6 +117,47 @@
         "repository": "rest-of-us/hub-apac",
         "branch": "main",
         "path": "profiles"
+      }
+    },
+    {
+      "id": "africa",
+      "name": "Africa",
+      "region": "africa",
+      "description": "Senior tech talent across Africa, from Lagos and Nairobi to Cairo and Cape Town.",
+      "repository": "https://github.com/rest-of-us/job-circles",
+      "profiles_url": "profiles/africa.json",
+      "timezones": [
+        "UTC",
+        "UTC+1",
+        "UTC+2",
+        "UTC+3",
+        "UTC+4"
+      ],
+      "status": "active",
+      "submit": {
+        "repository": "rest-of-us/job-circles",
+        "branch": "main",
+        "path": "profiles/africa"
+      }
+    },
+    {
+      "id": "middle-east",
+      "name": "Middle East (Western Asia)",
+      "region": "middle-east",
+      "description": "Senior tech talent across the Middle East and Western Asia, from Türkiye and the Gulf to the Levant and the Caucasus.",
+      "repository": "https://github.com/rest-of-us/job-circles",
+      "profiles_url": "profiles/middle-east.json",
+      "timezones": [
+        "UTC+2",
+        "UTC+3",
+        "UTC+3:30",
+        "UTC+4"
+      ],
+      "status": "active",
+      "submit": {
+        "repository": "rest-of-us/job-circles",
+        "branch": "main",
+        "path": "profiles/middle-east"
       }
     },
     {
