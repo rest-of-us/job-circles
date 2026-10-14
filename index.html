@@ -36,7 +36,8 @@
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
-  <script src="assets/jobflo.js" defer></script>
+  <script src="js/hubs.js"></script>
+  <script src="js/jobflo.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -198,6 +199,7 @@
               <div class="flex gap-2">
                 <button id="exportJson" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">Export JSON</button>
                 <button id="exportCsv" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">Export CSV</button>
+                <button id="exportAtom" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800" title="Download the filtered list as an Atom feed (feed.xml)">Atom feed</button>
                 <button id="copyLink" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">Copy search link</button>
               </div>
             </div>
@@ -253,6 +255,37 @@
           <a href="https://github.com/rest-of-us/job-circles#launching-a-regional-hub" target="_blank" rel="noopener" class="shrink-0 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">How to launch a hub →</a>
         </div>
         <div id="hubList" class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+        <div class="mt-10 grid gap-6 lg:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="font-semibold">Add a hub or registry</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Paste a hub's profile feed (e.g. <code class="text-xs">…/profiles.json</code>) or another node's <code class="text-xs">hubs.json</code>. It's saved in this browser only and searched alongside the hubs above.</p>
+            <form id="addHubForm" class="mt-4 grid gap-2 sm:grid-cols-[1fr_10rem_auto]">
+              <label class="sr-only" for="addHubUrl">Feed or registry URL</label>
+              <input id="addHubUrl" type="url" required placeholder="https://example.github.io/hub/profiles.json" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+              <label class="sr-only" for="addHubName">Name (optional)</label>
+              <input id="addHubName" maxlength="60" placeholder="Name (optional)" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+              <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">Add</button>
+            </form>
+            <p id="addHubMsg" class="mt-2 min-h-[1.25rem] text-xs" aria-live="polite"></p>
+            <ul id="customList" class="mt-2 space-y-2 text-sm"></ul>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="font-semibold">Cache &amp; registries</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Hub responses are cached in this browser, so repeat visits are fast and don't re-download every hub.</p>
+            <div class="mt-4 flex flex-wrap items-end gap-2">
+              <label class="text-sm">Keep cached data for
+                <select id="cacheTtl" class="mt-1 block rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+                  <option value="0">Don't cache</option><option value="15">15 minutes</option><option value="60">1 hour</option><option value="360">6 hours</option><option value="1440">24 hours</option>
+                </select>
+              </label>
+              <button id="refreshHubs" type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">Refresh all now</button>
+              <button id="clearCache" type="button" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">Clear cache</button>
+            </div>
+            <h4 class="mt-5 text-sm font-medium">Registries in use</h4>
+            <ul id="registryList" class="mt-2 space-y-1 text-sm"></ul>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -277,8 +310,6 @@
 /* ------------------------------------------------------------------ *
  * Config & labels
  * ------------------------------------------------------------------ */
-const HUB_REGISTRY = 'hubs.json';
-const FETCH_TIMEOUT_MS = 10000;
 const MAX_TAGS_SHOWN = 30;
 
 const PREF_LABELS = {
@@ -322,6 +353,9 @@ const TZ_PRESETS = [
  * State
  * ------------------------------------------------------------------ */
 const state = {
+  revealed: new Set(),    // profile keys whose private contact methods the visitor chose to reveal
+  registries: [],
+  config: null,
   hubs: [],
   hubStatus: {},          // hubId -> { state: 'loading'|'ok'|'error', count, error }
   profiles: [],
@@ -400,26 +434,14 @@ function cleanProfile(p) {
   return out;
 }
 
-async function fetchJson(url) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
-  try {
-    const res = await fetch(url, { signal: ctrl.signal, cache: 'no-cache', headers: { Accept: 'application/json' } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    throw err.name === 'AbortError' ? new Error('timed out') : err;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 /* ------------------------------------------------------------------ *
- * Loading
+ * Loading (js/hubs.js does the fetching and caching)
  * ------------------------------------------------------------------ */
+const displayName = (p) => p.name || p.handle || p.id;
+
 function isPlausibleProfile(p) {
   return p && typeof p === 'object'
-    && typeof p.id === 'string' && typeof p.name === 'string'
+    && typeof p.id === 'string' && (typeof p.name === 'string' || typeof p.handle === 'string')
     && typeof p.headline === 'string' && parseTz(p.timezone) !== null;
 }
 
@@ -431,8 +453,10 @@ function normalise(p, hub, sourceUrl) {
     work_preferences: Array.isArray(p.work_preferences) ? p.work_preferences : [],
     major_impact: Array.isArray(p.major_impact) ? p.major_impact : [],
     proof_of_work: Array.isArray(p.proof_of_work) ? p.proof_of_work : [],
+    contact_methods: Array.isArray(p.contact_methods) ? p.contact_methods.filter((m) => m && m.type && m.value) : [],
     vouches,
-    _key: `${hub.id}:${p.id}`,
+    _key: `${hub.key}:${p.id}`,
+    _name: displayName(p),
     _hub: hub,
     _source: sourceUrl,
     _tz: parseTz(p.timezone),
@@ -440,27 +464,49 @@ function normalise(p, hub, sourceUrl) {
   };
 }
 
-// A hub feed is either an array of profiles, {"profiles": [...]}, or an
-// array of relative URLs to individual profile files.
-async function loadHub(hub) {
-  const feedUrl = new URL(hub.profiles_url, location.href).href;
-  const data = await fetchJson(feedUrl);
-  let entries = Array.isArray(data) ? data : Array.isArray(data?.profiles) ? data.profiles : null;
-  if (!entries) throw new Error('feed is not a list of profiles');
+let loadGeneration = 0;
 
-  const resolved = await Promise.all(entries.map(async (entry) => {
-    if (typeof entry !== 'string') return { profile: entry, src: feedUrl };
-    const src = new URL(entry, feedUrl).href;
-    try { return { profile: await fetchJson(src), src }; } catch { return null; }
-  }));
+async function loadAllHubs({ force = false } = {}) {
+  const gen = ++loadGeneration;
+  state.profiles = [];
+  state.hubStatus = {};
+  rebuildIndex();
+  $('#resultCount').textContent = 'Loading hubs…';
 
-  const profiles = [];
-  for (const r of resolved) {
-    if (!r) continue;
-    if (isPlausibleProfile(r.profile)) profiles.push(normalise(r.profile, hub, r.src));
-    else console.warn(`[the-rest-of-us] skipped invalid profile in hub "${hub.id}"`, r.profile);
+  const reg = await Hubs.loadRegistry({ force });
+  if (gen !== loadGeneration) return;
+  state.registries = reg.registries;
+  state.config = reg.config;
+  state.hubs = reg.hubs.filter((h) => h.status !== 'disabled');
+  // Planned hubs are listed but not fetched until their repository exists.
+  for (const hub of state.hubs) state.hubStatus[hub.key] = hub.status === 'planned' ? { state: 'planned', count: 0 } : { state: 'loading', count: 0 };
+  renderHubStatus(); renderHubList(); renderRegistries(); renderCustomList();
+  if (!reg.registries.some((r) => r.source === 'default' && r.ok)) {
+    $('#resultCount').textContent = 'Couldn’t load ./hubs.json. Hubs you added yourself are still searched.';
   }
-  return profiles;
+
+  await Promise.allSettled(state.hubs.filter((h) => h.status !== 'planned').map(async (hub) => {
+    try {
+      const res = await Hubs.loadHub(hub, { force });
+      if (gen !== loadGeneration) return;
+      const seen = new Set(state.profiles.map((p) => p._key));
+      let count = 0;
+      for (const { profile, src } of res.entries) {
+        if (!isPlausibleProfile(profile)) { console.warn(`[the-rest-of-us] skipped invalid profile in hub "${hub.key}"`, profile); continue; }
+        const p = normalise(profile, hub, src);
+        if (seen.has(p._key)) continue;
+        seen.add(p._key); state.profiles.push(p); count++;
+      }
+      state.hubStatus[hub.key] = { state: 'ok', count, fetchedAt: res.fetchedAt, fromCache: res.fromCache, stale: res.stale, error: res.error };
+    } catch (err) {
+      if (gen !== loadGeneration) return;
+      state.hubStatus[hub.key] = { state: 'error', count: 0, error: err.message };
+    }
+    rebuildIndex(); renderHubStatus(); renderHubList(); renderStats(); renderTagFilters(); render();
+  }));
+  if (gen !== loadGeneration) return;
+  rebuildIndex(); renderStats(); render();
+  openFromHash();
 }
 
 async function init() {
@@ -468,36 +514,9 @@ async function init() {
   buildStaticFilters();
   syncFilterControls();
   bindEvents();
-
-  let registry;
-  try {
-    registry = await fetchJson(HUB_REGISTRY);
-  } catch (err) {
-    $('#resultCount').textContent = `Could not load ${HUB_REGISTRY}: ${err.message}`;
-    return;
-  }
-  state.hubs = (registry.hubs || []).filter((h) => h && h.id && h.profiles_url && h.status !== 'disabled');
-  // Planned hubs are listed but not fetched until their repository exists.
-  for (const hub of state.hubs) state.hubStatus[hub.id] = hub.status === 'planned' ? { state: 'planned', count: 0 } : { state: 'loading', count: 0 };
-  renderHubStatus();
-  renderHubList();
-
-  await Promise.allSettled(state.hubs.filter((h) => h.status !== 'planned').map(async (hub) => {
-    try {
-      const profiles = await loadHub(hub);
-      const seen = new Set(state.profiles.map((p) => p._key));
-      state.profiles.push(...profiles.filter((p) => !seen.has(p._key)));
-      state.hubStatus[hub.id] = { state: 'ok', count: profiles.length };
-    } catch (err) {
-      state.hubStatus[hub.id] = { state: 'error', count: 0, error: err.message };
-    }
-    rebuildIndex();
-    renderHubStatus();
-    renderHubList();
-    renderStats();
-    renderTagFilters();
-    render();
-  }));
+  $('#cacheTtl').value = String(Hubs.ttlMinutes());
+  if (!$('#cacheTtl').value) $('#cacheTtl').value = '60';
+  await loadAllHubs();
 }
 
 function rebuildIndex() {
@@ -507,6 +526,7 @@ function rebuildIndex() {
     includeScore: true,
     keys: [
       { name: 'name', weight: 2 },
+      { name: 'handle', weight: 2 },
       { name: 'headline', weight: 2 },
       { name: 'core_competencies', weight: 3 },
       { name: 'major_impact.title', weight: 1.5 },
@@ -531,7 +551,7 @@ function defaultSort(a, b) {
   return (b.vouches.length - a.vouches.length)
     || (a._sample - b._sample)
     || String(b.updated || '').localeCompare(String(a.updated || ''))
-    || a.name.localeCompare(b.name);
+    || a._name.localeCompare(b._name);
 }
 
 function filteredProfiles() {
@@ -651,7 +671,7 @@ function renderTagFilters() {
  * ------------------------------------------------------------------ */
 function renderHubStatus() {
   $('#hubStatus').innerHTML = state.hubs.filter((h) => h.status !== 'planned').map((h) => {
-    const s = state.hubStatus[h.id] || {};
+    const s = state.hubStatus[h.key] || {};
     const dot = s.state === 'ok' ? 'bg-emerald-500' : s.state === 'error' ? 'bg-amber-500' : 'bg-slate-400 animate-pulse';
     const label = s.state === 'ok' ? s.count : s.state === 'error' ? 'offline' : '…';
     return `<span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 dark:border-slate-800 dark:bg-slate-900" title="${esc(s.error || h.description || '')}">
@@ -660,9 +680,9 @@ function renderHubStatus() {
 }
 
 function renderHubList() {
-  const order = (h) => (h.status === 'planned' ? 2 : h.status === 'demo' ? 1 : 0);
+  const order = (h) => (h.status === 'planned' ? 3 : h.status === 'demo' ? 2 : h.source !== 'default' ? 1 : 0);
   $('#hubList').innerHTML = [...state.hubs].sort((a, b) => order(a) - order(b)).map((h) => {
-    const s = state.hubStatus[h.id] || {};
+    const s = state.hubStatus[h.key] || {};
     if (s.state === 'planned') {
       return `<article class="flex flex-col rounded-2xl border border-dashed border-slate-300 p-5 dark:border-slate-700">
         <div class="flex items-start justify-between gap-3">
@@ -676,25 +696,53 @@ function renderHubList() {
         </div>
       </article>`;
     }
-    const feed = safeUrl(new URL(h.profiles_url, location.href).href);
+    const feed = safeUrl(h.feed);
     const repo = safeUrl(h.repository);
-    const statusText = s.state === 'ok' ? `${s.count} profile${s.count === 1 ? '' : 's'}`
+    const statusText = s.state === 'ok' ? `${s.count} profile${s.count === 1 ? '' : 's'}${s.fromCache ? ` · cached ${esc(ago(s.fetchedAt))}` : ''}${s.stale ? ` · offline, showing saved copy (${esc(s.error)})` : ''}`
       : s.state === 'error' ? `Unreachable (${esc(s.error)})` : 'Loading…';
     const statusClass = s.state === 'ok' ? 'text-emerald-600 dark:text-emerald-400' : s.state === 'error' ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500';
     return `<article class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div class="flex items-start justify-between gap-3">
         <h3 class="font-semibold">${esc(h.name)}</h3>
         ${h.status === 'demo' ? '<span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">Sample data</span>' : ''}
+        ${h.source === 'custom' ? '<span class="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-800 dark:bg-sky-500/15 dark:text-sky-300">Added by you</span>' : ''}
+        ${h.source === 'peer' ? `<span class="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-800 dark:bg-violet-500/15 dark:text-violet-300" title="Listed by peer registry ${esc(h.registry)}">Peer node</span>` : ''}
       </div>
       <p class="mt-1 flex-1 text-sm text-slate-600 dark:text-slate-400">${esc(h.description || '')}</p>
       <p class="mt-3 text-xs font-medium ${statusClass}">${statusText}</p>
       <div class="mt-3 flex flex-wrap gap-2 text-xs">
         ${feed ? `<a href="${esc(feed)}" class="rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700" target="_blank" rel="noopener">Raw JSON feed</a>` : ''}
-        ${feed ? `<button type="button" data-copy="${esc(feed)}" class="rounded-lg bg-slate-100 px-2.5 py-1.5 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">Copy URL</button>` : ''}
+        ${feed ? `<button type="button" data-copy="${esc(feed)}" data-copy-msg="Feed URL copied" class="rounded-lg bg-slate-100 px-2.5 py-1.5 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">Copy URL</button>` : ''}
         ${repo ? `<a href="${esc(repo)}" class="rounded-lg bg-slate-100 px-2.5 py-1.5 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700" target="_blank" rel="noopener">Repository</a>` : ''}
       </div>
     </article>`;
   }).join('');
+}
+
+function ago(t) {
+  if (!t) return '';
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`;
+}
+
+function renderRegistries() {
+  const label = { default: 'This site', peer: 'Peer', custom: 'Added by you' };
+  $('#registryList').innerHTML = (state.registries || []).map((r) => `
+    <li class="flex flex-wrap items-center gap-2">
+      <span class="h-2 w-2 shrink-0 rounded-full ${r.ok ? (r.stale ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-rose-500'}"></span>
+      <a href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener" class="min-w-0 truncate font-mono text-xs hover:underline">${esc(r.url)}</a>
+      <span class="text-xs text-slate-500 dark:text-slate-400">${esc(label[r.source] || r.source)} · ${r.ok ? `${r.hubCount} hub${r.hubCount === 1 ? '' : 's'}` : esc(r.error || 'failed')}</span>
+    </li>`).join('') || '<li class="text-slate-500">None</li>';
+}
+
+function renderCustomList() {
+  const list = Hubs.customEntries();
+  $('#customList').innerHTML = list.map((e) => `
+    <li class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/60">
+      <span class="rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase dark:bg-slate-700">${e.kind === 'registry' ? 'Registry' : 'Hub'}</span>
+      <span class="min-w-0 flex-1 truncate">${e.name ? `<span class="font-medium">${esc(e.name)}</span> · ` : ''}<span class="font-mono text-xs">${esc(e.url)}</span></span>
+      <button type="button" data-remove-custom="${esc(e.url)}" class="rounded px-2 py-1 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Remove</button>
+    </li>`).join('');
 }
 
 function renderStats() {
@@ -709,24 +757,75 @@ function renderStats() {
 /* ------------------------------------------------------------------ *
  * Rendering: candidate cards
  * ------------------------------------------------------------------ */
-function primaryContact(p) {
+const METHOD_LABELS = { email_base64: 'Email', proton_alias: 'Proton alias', matrix: 'Matrix', signal: 'Signal' };
+
+function b64decode(v) {
+  try { return new TextDecoder().decode(Uint8Array.from(atob(String(v)), (c) => c.charCodeAt(0))); } catch { return null; }
+}
+
+// Decodes contact_methods. Called only after a visitor clicks "Reveal".
+function revealedMethods(p) {
+  const subject = encodeURIComponent(`Opportunity via The Rest of US — ${p.headline}`.slice(0, 120));
+  return p.contact_methods.map((m) => {
+    const value = b64decode(m.value);
+    if (!value) return null;
+    let href = '';
+    if ((m.type === 'email_base64' || m.type === 'proton_alias') && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) href = `mailto:${value}?subject=${subject}`;
+    else if (m.type === 'matrix' && /^@[^:\s]+:[^\s]+$/.test(value)) href = `https://matrix.to/#/${value}`;
+    else if (m.type === 'signal' && /^https:\/\/signal\.me\/\S+$/.test(value)) href = value;
+    return { label: m.label || METHOD_LABELS[m.type] || m.type, type: m.type, value, href, preferred: !!m.preferred };
+  }).filter(Boolean).sort((a, b) => b.preferred - a.preferred);
+}
+
+function publicLinks(p) {
   const c = p.contact || {};
-  if (c.email && /^[^\s@]+@[^\s@]+$/.test(c.email)) {
-    const subject = encodeURIComponent(`Opportunity via The Rest of US — ${p.headline}`.slice(0, 120));
-    return { href: `mailto:${encodeURIComponent(c.email).replace('%40', '@')}?subject=${subject}`, label: 'Email' };
+  return [
+    safeUrl(c.calendar) && { label: 'Book a call', href: safeUrl(c.calendar) },
+    safeUrl(c.linkedin) && { label: 'LinkedIn', href: safeUrl(c.linkedin) },
+    safeUrl(c.website) && { label: 'Website', href: safeUrl(c.website) }
+  ].filter(Boolean);
+}
+
+function primaryContact(p) {
+  const link = publicLinks(p)[0];
+  return link ? { href: link.href, label: link.label } : null;
+}
+
+function revealPanel(p) {
+  const rows = revealedMethods(p);
+  return `<div class="w-full rounded-xl border border-brand-500/30 bg-brand-50/60 p-3 text-sm dark:bg-brand-500/10">
+    <ul class="space-y-2">
+      ${rows.map((r) => `<li class="flex flex-wrap items-center gap-2">
+        <span class="w-24 shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">${esc(r.label)}${r.preferred ? ' ★' : ''}</span>
+        <code class="min-w-0 flex-1 break-all text-xs">${esc(r.value)}</code>
+        <button type="button" data-copy="${esc(r.value)}" data-copy-msg="${esc(r.label)} copied" class="rounded-md border border-slate-300 bg-white px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">Copy</button>
+        ${r.href ? `<a href="${esc(r.href)}" target="_blank" rel="noopener" class="rounded-md bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white hover:bg-brand-700">Open</a>` : ''}
+      </li>`).join('') || '<li class="text-xs text-slate-500">No readable contact methods.</li>'}
+    </ul>
+    ${publicLinks(p).length ? `<p class="mt-2 flex flex-wrap gap-3 text-xs">${publicLinks(p).map((l) => `<a class="font-medium text-brand-700 hover:underline dark:text-brand-400" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join('')}</p>` : ''}
+    <p class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">Decoded in your browser. Candidates encode these to keep them away from crawlers, so please don't republish them.</p>
+  </div>`;
+}
+
+// Contact controls shared by cards and the dialog.
+function contactControls(p, size = 'card') {
+  const cls = size === 'card' ? 'inline-flex flex-1 items-center justify-center rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700'
+    : 'rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700';
+  if (p.contact_methods.length) {
+    const open = state.revealed.has(p._key);
+    return `<button type="button" data-reveal="${esc(p._key)}" aria-expanded="${open}" class="${cls}">${open ? 'Hide contact' : 'Reveal contact'}</button>`;
   }
-  if (safeUrl(c.calendar)) return { href: safeUrl(c.calendar), label: 'Book a call' };
-  if (safeUrl(c.linkedin)) return { href: safeUrl(c.linkedin), label: 'LinkedIn' };
-  if (safeUrl(c.website)) return { href: safeUrl(c.website), label: 'Website' };
-  return null;
+  const contact = primaryContact(p);
+  return contact ? `<a href="${esc(contact.href)}" target="_blank" rel="noopener" class="${cls}">Contact · ${esc(contact.label)}</a>` : '';
 }
 
 function vouchBadge(p) {
   const n = p.vouches.length;
   if (!n) return '';
-  return `<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" title="${n} peer vouch${n === 1 ? '' : 'es'}">
+  const signed = p.vouches.filter((v) => v.signature).length;
+  return `<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" title="${n} peer vouch${n === 1 ? '' : 'es'}${signed ? `, ${signed} cryptographically signed` : ''}">
     <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5L20 7"/></svg>
-    ${n} vouch${n === 1 ? '' : 'es'}</span>`;
+    ${n} vouch${n === 1 ? '' : 'es'}${signed ? ` · ${signed} signed` : ''}</span>`;
 }
 
 function initials(name) {
@@ -734,17 +833,17 @@ function initials(name) {
 }
 
 function card(p) {
-  const contact = primaryContact(p);
   const place = [p.location?.city, countryName(p.location?.country)].filter(Boolean).join(', ');
   const topImpact = p.major_impact[0];
   const tags = p.core_competencies.slice(0, 6);
   const more = p.core_competencies.length - tags.length;
   return `<article class="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-brand-500/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
     <div class="flex items-start gap-3">
-      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 font-bold text-white" aria-hidden="true">${esc(initials(p.name))}</div>
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 font-bold text-white" aria-hidden="true">${esc(initials(p._name))}</div>
       <div class="min-w-0 flex-1">
         <div class="flex flex-wrap items-center gap-2">
-          <h3 class="truncate font-semibold">${esc(p.name)}</h3>
+          <h3 class="truncate font-semibold">${esc(p._name)}</h3>
+          ${!p.name && p.handle ? '<span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300" title="This candidate uses a handle instead of their legal name">Handle</span>' : ''}
           ${p.pronouns ? `<span class="text-xs text-slate-500 dark:text-slate-400">${esc(p.pronouns)}</span>` : ''}
           ${p._sample ? '<span class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">Sample</span>' : ''}
         </div>
@@ -763,9 +862,10 @@ function card(p) {
       ${p.availability ? `<span>${esc(AVAIL_LABELS[p.availability] || p.availability)}</span>` : ''}
     </div>
     <div class="mt-auto flex flex-wrap gap-2 pt-4">
-      ${contact ? `<a href="${esc(contact.href)}" target="_blank" rel="noopener" class="inline-flex flex-1 items-center justify-center rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700">Contact · ${esc(contact.label)}</a>` : ''}
+      ${contactControls(p)}
       <button type="button" data-open="${esc(p._key)}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">View profile</button>
       <button type="button" data-export="${esc(p._key)}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800" title="Download this profile as JSON">JSON</button>
+      ${state.revealed.has(p._key) ? revealPanel(p) : ''}
     </div>
   </article>`;
 }
@@ -778,7 +878,7 @@ function render() {
   const total = state.profiles.filter((p) => state.filters.showSamples || !p._sample).length;
   $('#resultCount').textContent = `${lastResults.length} of ${total} candidate${total === 1 ? '' : 's'}${loading ? ' · loading more hubs…' : ''}`;
   $('#emptyState').classList.toggle('hidden', lastResults.length > 0 || loading);
-  $('#exportJson').disabled = $('#exportCsv').disabled = lastResults.length === 0;
+  $('#exportJson').disabled = $('#exportCsv').disabled = $('#exportAtom').disabled = lastResults.length === 0;
 }
 
 /* ------------------------------------------------------------------ *
@@ -787,11 +887,9 @@ function render() {
 function openProfile(key) {
   const p = state.profiles.find((x) => x._key === key);
   if (!p) return;
-  const contact = primaryContact(p);
   const c = p.contact || {};
   const place = [p.location?.city, countryName(p.location?.country)].filter(Boolean).join(', ');
   const links = [
-    c.email ? `<a class="hover:underline" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '',
     safeUrl(c.linkedin) ? `<a class="hover:underline" href="${esc(safeUrl(c.linkedin))}" target="_blank" rel="noopener">LinkedIn</a>` : '',
     safeUrl(c.website) ? `<a class="hover:underline" href="${esc(safeUrl(c.website))}" target="_blank" rel="noopener">Website</a>` : '',
     safeUrl(c.calendar) ? `<a class="hover:underline" href="${esc(safeUrl(c.calendar))}" target="_blank" rel="noopener">Book a call</a>` : '',
@@ -803,7 +901,7 @@ function openProfile(key) {
   $('#dialogBody').innerHTML = `
     <div class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
       <div class="min-w-0">
-        <h2 id="dialogTitle" class="text-xl font-bold">${esc(p.name)} ${p.pronouns ? `<span class="text-sm font-normal text-slate-500">${esc(p.pronouns)}</span>` : ''}</h2>
+        <h2 id="dialogTitle" class="text-xl font-bold">${esc(p._name)} ${p.pronouns ? `<span class="text-sm font-normal text-slate-500">${esc(p.pronouns)}</span>` : ''}</h2>
         <p class="text-sm text-slate-600 dark:text-slate-400">${esc(p.headline)}</p>
       </div>
       <button type="button" data-close class="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close">
@@ -864,6 +962,7 @@ function openProfile(key) {
               <span class="font-semibold">${esc(v.vouched_by)}</span>
               ${v.vouched_by_github ? `<a href="https://github.com/${encodeURIComponent(v.vouched_by_github)}" target="_blank" rel="noopener" class="text-xs text-slate-500 hover:underline">@${esc(v.vouched_by_github)}</a>` : ''}
               <span class="text-xs text-slate-500">· ${esc(RELATIONSHIP_LABELS[v.relationship] || v.relationship || '')}${v.date ? ` · ${esc(v.date)}` : ''}</span>
+              ${v.signature ? `<span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" title="Signed with ${esc(v.signature_format === 'openpgp' ? 'OpenPGP' : 'SSH')} key ${esc(v.public_key_fingerprint)}. The hub's CI checks signatures against the voucher's GitHub keys before merging.">Signed · ${esc(v.signature_format === 'openpgp' ? 'OpenPGP' : 'SSH')}</span>` : ''}
               ${safeUrl(v.verification_url) ? `<a href="${esc(safeUrl(v.verification_url))}" target="_blank" rel="noopener" class="ml-auto text-xs font-medium text-emerald-700 hover:underline dark:text-emerald-400">Verify →</a>` : ''}
             </div>
             ${v.statement ? `<p class="mt-1 text-slate-700 dark:text-slate-300">“${esc(v.statement)}”</p>` : ''}
@@ -872,16 +971,31 @@ function openProfile(key) {
       </section>
 
       ${links.length ? `<p class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-brand-600 dark:text-brand-400">${links.join('')}</p>` : ''}
+      ${state.revealed.has(p._key) ? revealPanel(p) : ''}
     </div>
     <div class="sticky bottom-0 flex flex-wrap gap-2 border-t border-slate-200 bg-white/95 px-6 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
-      ${contact ? `<a href="${esc(contact.href)}" target="_blank" rel="noopener" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">Contact · ${esc(contact.label)}</a>` : ''}
+      ${contactControls(p, 'dialog')}
       <button type="button" data-export="${esc(p._key)}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">Download JSON</button>
+      <button type="button" data-copy="${esc(profileLink(p))}" data-copy-msg="Profile link copied" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">Copy link</button>
       ${safeUrl(p._source) ? `<a href="${esc(safeUrl(p._source))}" target="_blank" rel="noopener" class="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">Source feed</a>` : ''}
     </div>`;
 
   const dlg = $('#profileDialog');
-  if (!dlg.open) dlg.showModal();
-  dlg.scrollTop = 0;
+  const wasOpen = dlg.open;
+  if (!wasOpen) dlg.showModal();
+  if (!wasOpen) dlg.scrollTop = 0;
+  if (location.hash !== `#profile=${encodeURIComponent(key)}`) history.replaceState(null, '', `${location.pathname}${location.search}#profile=${encodeURIComponent(key)}`);
+}
+
+const profileLink = (p) => `${location.origin}${location.pathname}#profile=${encodeURIComponent(p._key)}`;
+
+function clearProfileHash() {
+  if (location.hash.startsWith('#profile=')) history.replaceState(null, '', location.pathname + location.search);
+}
+
+function openFromHash() {
+  const m = /^#profile=(.+)$/.exec(location.hash);
+  if (m) openProfile(decodeURIComponent(m[1]));
 }
 
 /* ------------------------------------------------------------------ *
@@ -908,15 +1022,60 @@ function exportResults(format) {
     download(`the-rest-of-us-${stamp}.json`, JSON.stringify(payload, null, 2) + '\n', 'application/json');
     return;
   }
-  const header = ['name', 'headline', 'seniority', 'country', 'city', 'timezone', 'work_preferences', 'availability',
-    'core_competencies', 'vouch_count', 'email', 'linkedin', 'website', 'calendar', 'hub', 'source'];
+  // CSV is a private working file, so private contact methods are decoded into it.
+  const header = ['name', 'handle', 'headline', 'seniority', 'country', 'city', 'timezone', 'work_preferences', 'availability',
+    'core_competencies', 'vouch_count', 'signed_vouch_count', 'private_contact', 'linkedin', 'website', 'calendar', 'hub', 'profile_link'];
   const rows = lastResults.map((p) => [
-    p.name, p.headline, p.seniority, p.location?.country, p.location?.city, p.timezone,
-    p.work_preferences.join('; '), p.availability, p.core_competencies.join('; '), p.vouches.length,
-    p.contact?.email, p.contact?.linkedin, p.contact?.website, p.contact?.calendar, p._hub.id, p._source
+    p.name, p.handle, p.headline, p.seniority, p.location?.country, p.location?.city, p.timezone,
+    p.work_preferences.join('; '), p.availability, p.core_competencies.join('; '), p.vouches.length, p.vouches.filter((v) => v.signature).length,
+    revealedMethods(p).map((r) => `${r.label}: ${r.value}`).join('; '),
+    p.contact?.linkedin, p.contact?.website, p.contact?.calendar, p._hub.key, profileLink(p)
   ]);
   const csv = [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
   download(`the-rest-of-us-${stamp}.csv`, '﻿' + csv, 'text/csv;charset=utf-8');
+}
+
+// Atom 1.0 feed of the current results, for recruiters' feed readers and ATS
+// importers. Private contact methods are left out: entries link back here.
+function exportAtom() {
+  if (!lastResults.length) return;
+  const x = (v) => String(v ?? '').replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
+  const host = location.host || 'localhost';
+  const now = new Date().toISOString();
+  const entries = lastResults.map((p) => {
+    const place = [p.location?.city, countryName(p.location?.country)].filter(Boolean).join(', ');
+    const updated = /^\d{4}-\d{2}-\d{2}$/.test(p.updated || '') ? `${p.updated}T00:00:00Z` : now;
+    const html = [
+      `<p><strong>${esc(p.headline)}</strong></p>`,
+      `<p>${esc([SENIORITY_LABELS[p.seniority], place, fmtOffset(p._tz)].filter(Boolean).join(' · '))}</p>`,
+      `<p>Work: ${esc(p.work_preferences.map((w) => PREF_LABELS[w] || w).join(', '))}. ${esc(AVAIL_LABELS[p.availability] || '')}</p>`,
+      `<p>Skills: ${esc(p.core_competencies.join(', '))}</p>`,
+      p.major_impact.length ? `<ul>${p.major_impact.map((m) => `<li><strong>${esc(m.title)}</strong>. ${esc(m.summary)}</li>`).join('')}</ul>` : '',
+      `<p>${p.vouches.length} peer vouch${p.vouches.length === 1 ? '' : 'es'}${p.vouches.some((v) => v.signature) ? ` (${p.vouches.filter((v) => v.signature).length} signed)` : ''}. Contact details on the profile page.</p>`
+    ].join('');
+    return `  <entry>
+    <id>tag:${x(host)},2026:${x(p._key)}</id>
+    <title>${x(`${p._name} — ${p.headline}`)}</title>
+    <link rel="alternate" type="text/html" href="${x(profileLink(p))}"/>
+    <updated>${updated}</updated>
+    <author><name>${x(p._name)}</name></author>
+${p.core_competencies.map((t) => `    <category term="${x(t)}"/>`).join('\n')}
+    <summary type="text">${x(p.headline)}</summary>
+    <content type="html">${x(html)}</content>
+  </entry>`;
+  }).join('\n');
+  const xml = `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>The Rest of US — candidate shortlist</title>
+  <subtitle>${x($('#resultCount').textContent)}</subtitle>
+  <id>${x(location.href.split('#')[0])}</id>
+  <link rel="alternate" type="text/html" href="${x(location.href.split('#')[0])}"/>
+  <updated>${now}</updated>
+  <generator uri="https://github.com/rest-of-us/job-circles">The Rest of US</generator>
+${entries}
+</feed>
+`;
+  download('feed.xml', xml, 'application/atom+xml');
 }
 
 async function copyText(text, msg) {
@@ -983,6 +1142,32 @@ function bindEvents() {
 
   $('#exportJson').addEventListener('click', () => exportResults('json'));
   $('#exportCsv').addEventListener('click', () => exportResults('csv'));
+  $('#exportAtom').addEventListener('click', exportAtom);
+
+  $('#addHubForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const url = $('#addHubUrl').value.trim(), name = $('#addHubName').value.trim();
+    const msg = $('#addHubMsg');
+    msg.className = 'mt-2 min-h-[1.25rem] text-xs text-slate-500';
+    msg.textContent = 'Checking…';
+    try {
+      const found = await Hubs.detect(url);
+      Hubs.addCustom({ kind: found.kind, url, name: name || found.name });
+      msg.className = 'mt-2 min-h-[1.25rem] text-xs text-emerald-700 dark:text-emerald-400';
+      msg.textContent = found.kind === 'registry' ? `Added a registry listing ${found.count} hub${found.count === 1 ? '' : 's'}.` : `Added a hub with ${found.count} profile${found.count === 1 ? '' : 's'}.`;
+      $('#addHubForm').reset();
+      loadAllHubs();
+    } catch (err) {
+      msg.className = 'mt-2 min-h-[1.25rem] text-xs text-rose-600 dark:text-rose-400';
+      msg.textContent = /Failed to fetch|NetworkError|Load failed/i.test(err.message)
+        ? 'Couldn’t reach that address. It must exist and allow cross-origin requests (CORS); GitHub Pages does by default.'
+        : /^HTTP \d+/.test(err.message) ? `That address returned ${err.message}. Check the URL.` : err.message;
+    }
+  });
+  $('#cacheTtl').addEventListener('change', (e) => { Hubs.setTtlMinutes(e.target.value); toast(Number(e.target.value) ? 'Cache time updated' : 'Caching turned off'); });
+  $('#refreshHubs').addEventListener('click', () => { loadAllHubs({ force: true }); toast('Refreshing every hub…'); });
+  $('#clearCache').addEventListener('click', async () => { await Hubs.clearCache(); toast('Cache cleared'); });
+  window.addEventListener('hashchange', openFromHash);
   $('#copyLink').addEventListener('click', () => copyText(location.href, 'Search link copied'));
 
   // Delegated clicks: tags (filter sidebar and cards), open, export, copy.
@@ -999,13 +1184,25 @@ function bindEvents() {
     const exp = e.target.closest('[data-export]');
     if (exp) return exportProfile(exp.dataset.export);
     const copy = e.target.closest('[data-copy]');
-    if (copy) return copyText(copy.dataset.copy, 'Feed URL copied');
+    if (copy) return copyText(copy.dataset.copy, copy.dataset.copyMsg || 'Copied');
+    const reveal = e.target.closest('[data-reveal]');
+    if (reveal) {
+      const k = reveal.dataset.reveal;
+      state.revealed.has(k) ? state.revealed.delete(k) : state.revealed.add(k);
+      render();
+      if ($('#profileDialog').open) openProfile(k);
+      return;
+    }
+    const rm = e.target.closest('[data-remove-custom]');
+    if (rm) { Hubs.removeCustom(rm.dataset.removeCustom); renderCustomList(); loadAllHubs(); return; }
   });
 
   const dlg = $('#profileDialog');
   dlg.addEventListener('click', (e) => {
-    if (e.target === dlg || e.target.closest('[data-close]')) dlg.close();
+    if (e.target === dlg || e.target.closest('[data-close]')) { dlg.close(); clearProfileHash(); }
   });
+  // Escape closes the dialog natively; tidy the link then too.
+  dlg.addEventListener('close', clearProfileHash);
 }
 
 init();

@@ -2,13 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://rest-of-us.github.io/job-circles/profiles/schema.json",
   "title": "The Rest of US — Candidate Profile",
-  "description": "A candidate profile for senior tech talent outside the US. The schema deliberately has no fields for birth dates, graduation years, employment start/end dates or total years of experience, and it rejects unknown properties so those can't be added. Candidates are judged on what they built and the impact it had, not on when.",
+  "description": "A candidate profile for senior tech talent outside the US. The schema deliberately has no fields for birth dates, graduation years, employment start/end dates or total years of experience, and it rejects unknown properties so those can't be added. Candidates are judged on what they built and the impact it had, not on when. Version 1.1 adds pseudonymous handles, encoded private contact methods (no plain email addresses) and optional cryptographically signed vouches.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema_version",
     "id",
-    "name",
     "headline",
     "seniority",
     "region",
@@ -17,8 +16,7 @@
     "work_preferences",
     "availability",
     "core_competencies",
-    "major_impact",
-    "contact"
+    "major_impact"
   ],
   "properties": {
     "$schema": {
@@ -27,7 +25,7 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "1.0",
+      "const": "1.1",
       "description": "Version of this schema the profile conforms to."
     },
     "id": {
@@ -36,25 +34,43 @@
       "minLength": 3,
       "maxLength": 64,
       "description": "URL-safe slug, unique within the hub. Should match the file name (profiles/<id>.json). Usually the candidate's GitHub handle.",
-      "examples": ["ada-okafor", "mkowalski"]
+      "examples": [
+        "ada-okafor",
+        "mkowalski"
+      ]
     },
     "name": {
       "type": "string",
       "minLength": 2,
       "maxLength": 80,
-      "description": "Name the candidate wants to be addressed by."
+      "description": "Real name the candidate wants to be addressed by. Optional when a handle is given."
+    },
+    "handle": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,38}$",
+      "description": "Pseudonym shown instead of a real name. Identity is anchored by the GitHub account that opened the profile's pull request and by peer vouches, not by a legal name.",
+      "examples": [
+        "quietbuilder",
+        "k.ops"
+      ]
     },
     "pronouns": {
       "type": "string",
       "maxLength": 30,
-      "examples": ["she/her", "he/him", "they/them"]
+      "examples": [
+        "she/her",
+        "he/him",
+        "they/them"
+      ]
     },
     "headline": {
       "type": "string",
       "minLength": 10,
       "maxLength": 140,
       "description": "One line describing what the candidate does best.",
-      "examples": ["Distributed systems architect — payments and ledger platforms at national scale"]
+      "examples": [
+        "Distributed systems architect — payments and ledger platforms at national scale"
+      ]
     },
     "summary": {
       "type": "string",
@@ -63,7 +79,15 @@
     },
     "seniority": {
       "type": "string",
-      "enum": ["senior", "staff", "principal", "distinguished", "director", "vp", "cto"],
+      "enum": [
+        "senior",
+        "staff",
+        "principal",
+        "distinguished",
+        "director",
+        "vp",
+        "cto"
+      ],
       "description": "Level of scope the candidate operates at, independent of tenure."
     },
     "github": {
@@ -73,19 +97,34 @@
     },
     "region": {
       "type": "string",
-      "enum": ["uk", "europe", "canada", "latam", "apac", "africa", "middle-east"],
+      "enum": [
+        "uk",
+        "europe",
+        "canada",
+        "latam",
+        "apac",
+        "africa",
+        "middle-east"
+      ],
       "description": "Regional hub the profile belongs to."
     },
     "location": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["country"],
+      "required": [
+        "country"
+      ],
       "properties": {
         "country": {
           "type": "string",
           "pattern": "^[A-Z]{2}$",
           "description": "ISO 3166-1 alpha-2 country code.",
-          "examples": ["GB", "CA", "BR", "IN"]
+          "examples": [
+            "GB",
+            "CA",
+            "BR",
+            "IN"
+          ]
         },
         "city": {
           "type": "string",
@@ -97,7 +136,11 @@
       "type": "string",
       "pattern": "^UTC(?:[+-](?:0?[0-9]|1[0-4])(?::(?:00|30|45))?)?$",
       "description": "Home UTC offset, written as UTC, UTC+1, UTC-7, UTC+5:30 or UTC+5:45.",
-      "examples": ["UTC", "UTC-7", "UTC+5:30"]
+      "examples": [
+        "UTC",
+        "UTC-7",
+        "UTC+5:30"
+      ]
     },
     "working_hours_overlap": {
       "type": "object",
@@ -134,7 +177,13 @@
     },
     "availability": {
       "type": "string",
-      "enum": ["immediately", "2_weeks", "1_month", "3_months", "open_to_conversations"],
+      "enum": [
+        "immediately",
+        "2_weeks",
+        "1_month",
+        "3_months",
+        "open_to_conversations"
+      ],
       "description": "How soon the candidate could start."
     },
     "languages": {
@@ -144,10 +193,24 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["language", "proficiency"],
+        "required": [
+          "language",
+          "proficiency"
+        ],
         "properties": {
-          "language": { "type": "string", "maxLength": 40 },
-          "proficiency": { "type": "string", "enum": ["native", "fluent", "professional", "conversational"] }
+          "language": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "proficiency": {
+            "type": "string",
+            "enum": [
+              "native",
+              "fluent",
+              "professional",
+              "conversational"
+            ]
+          }
         }
       }
     },
@@ -170,18 +233,26 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["title", "summary"],
+        "required": [
+          "title",
+          "summary"
+        ],
         "properties": {
           "title": {
             "type": "string",
             "maxLength": 120,
-            "examples": ["Re-architected the settlement ledger for a national payments network"]
+            "examples": [
+              "Re-architected the settlement ledger for a national payments network"
+            ]
           },
           "role": {
             "type": "string",
             "maxLength": 80,
             "description": "The candidate's role in this work.",
-            "examples": ["Lead architect", "Tech lead (team of 12)"]
+            "examples": [
+              "Lead architect",
+              "Tech lead (team of 12)"
+            ]
           },
           "organization": {
             "type": "string",
@@ -198,14 +269,25 @@
             "maxItems": 12,
             "uniqueItems": true,
             "description": "Key technologies or architectural patterns involved.",
-            "items": { "type": "string", "maxLength": 40 }
+            "items": {
+              "type": "string",
+              "maxLength": 40
+            }
           },
           "metrics": {
             "type": "array",
             "maxItems": 6,
             "description": "Measurable outcomes.",
-            "items": { "type": "string", "maxLength": 140 },
-            "examples": [["p99 latency 1.2s → 180ms", "Cut infra spend 38%"]]
+            "items": {
+              "type": "string",
+              "maxLength": 140
+            },
+            "examples": [
+              [
+                "p99 latency 1.2s → 180ms",
+                "Cut infra spend 38%"
+              ]
+            ]
           }
         }
       }
@@ -217,26 +299,54 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["title", "url", "type"],
+        "required": [
+          "title",
+          "url",
+          "type"
+        ],
         "properties": {
-          "title": { "type": "string", "maxLength": 120 },
-          "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
           "type": {
             "type": "string",
-            "enum": ["repository", "open_source_contribution", "publication", "talk", "design_doc", "product", "case_study", "other"]
+            "enum": [
+              "repository",
+              "open_source_contribution",
+              "publication",
+              "talk",
+              "design_doc",
+              "product",
+              "case_study",
+              "other"
+            ]
           },
-          "description": { "type": "string", "maxLength": 280 }
+          "description": {
+            "type": "string",
+            "maxLength": 280
+          }
         }
       }
     },
     "vouches": {
       "type": "array",
       "maxItems": 20,
-      "description": "Peer vouches. Each vouch must be added in a pull request opened by the voucher's own GitHub account; hub maintainers check that the PR author matches vouched_by_github before merging.",
+      "description": "Peer vouches. Each vouch must be added in a pull request opened by the voucher's own GitHub account. A vouch can also be cryptographically signed: CI then checks the signature against the voucher's public keys on GitHub (github.com/<user>.keys for SSH, github.com/<user>.gpg for OpenPGP) before it can be merged.",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["vouched_by", "vouched_by_github", "relationship", "date"],
+        "required": [
+          "vouched_by",
+          "vouched_by_github",
+          "relationship",
+          "date"
+        ],
         "properties": {
           "vouched_by": {
             "type": "string",
@@ -250,7 +360,15 @@
           },
           "relationship": {
             "type": "string",
-            "enum": ["manager", "direct_report", "peer", "tech_lead", "client", "open_source_collaborator", "mentor"],
+            "enum": [
+              "manager",
+              "direct_report",
+              "peer",
+              "tech_lead",
+              "client",
+              "open_source_collaborator",
+              "mentor"
+            ],
             "description": "How the voucher worked with the candidate."
           },
           "statement": {
@@ -268,32 +386,137 @@
             "format": "uri",
             "pattern": "^https://github\\.com/",
             "description": "Link to the merged pull request in which the voucher added this vouch."
+          },
+          "signature_format": {
+            "type": "string",
+            "enum": [
+              "ssh",
+              "openpgp"
+            ],
+            "description": "How the vouch was signed."
+          },
+          "public_key_fingerprint": {
+            "type": "string",
+            "pattern": "^(SHA256:[A-Za-z0-9+/]{43}|[A-F0-9]{40}|[A-F0-9]{64})$",
+            "description": "Fingerprint of the signing key: SHA256:… for SSH keys (ssh-keygen -lf key.pub), or the 40/64-character hex fingerprint for OpenPGP keys."
+          },
+          "signature": {
+            "type": "string",
+            "maxLength": 6000,
+            "pattern": "^-----BEGIN (SSH|PGP) SIGNATURE-----",
+            "description": "Armored detached signature over the canonical vouch message produced by scripts/vouch-message.mjs (SSH namespace: the-rest-of-us-vouch)."
           }
+        },
+        "dependentRequired": {
+          "signature": [
+            "signature_format",
+            "public_key_fingerprint"
+          ]
         }
       }
     },
     "compensation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["currency", "min", "period"],
+      "required": [
+        "currency",
+        "min",
+        "period"
+      ],
       "description": "Optional expected compensation range.",
       "properties": {
-        "currency": { "type": "string", "pattern": "^[A-Z]{3}$", "examples": ["USD", "EUR", "GBP"] },
-        "min": { "type": "number", "minimum": 0 },
-        "max": { "type": "number", "minimum": 0 },
-        "period": { "type": "string", "enum": ["hour", "day", "month", "year"] }
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "examples": [
+            "USD",
+            "EUR",
+            "GBP"
+          ]
+        },
+        "min": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max": {
+          "type": "number",
+          "minimum": 0
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "hour",
+            "day",
+            "month",
+            "year"
+          ]
+        }
       }
     },
     "contact": {
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
-      "description": "At least one way to reach the candidate. Everything here is public.",
+      "description": "Public links. Plain email addresses are not allowed here; put them in contact_methods, encoded.",
       "properties": {
-        "email": { "type": "string", "format": "email" },
-        "linkedin": { "type": "string", "format": "uri", "pattern": "^https://([a-z]{2,3}\\.)?linkedin\\.com/" },
-        "website": { "type": "string", "format": "uri", "pattern": "^https://" },
-        "calendar": { "type": "string", "format": "uri", "pattern": "^https://", "description": "Booking link, e.g. Cal.com." }
+        "linkedin": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://([a-z]{2,3}\\.)?linkedin\\.com/"
+        },
+        "website": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "calendar": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "description": "Booking link, e.g. Cal.com."
+        }
+      }
+    },
+    "contact_methods": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "description": "Private ways to reach the candidate. Every value is base64-encoded UTF-8 so no address or handle appears as plain text in the raw JSON for crawlers to harvest. This is obfuscation, not encryption: anyone can decode it, and the website only does so when a visitor clicks to reveal.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "value"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "email_base64",
+              "proton_alias",
+              "matrix",
+              "signal"
+            ],
+            "description": "email_base64: an email address. proton_alias: a Proton Mail / SimpleLogin alias address. matrix: a Matrix ID such as @name:matrix.org. signal: a Signal username (name.42) or a https://signal.me/ link. Never a phone number."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 400,
+            "pattern": "^[A-Za-z0-9+/]+={0,2}$",
+            "description": "base64-encoded UTF-8 value, e.g. base64(\"you@example.com\")."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "Optional label, e.g. 'Recruiting enquiries'."
+          },
+          "preferred": {
+            "type": "boolean",
+            "description": "The method to try first."
+          }
+        }
       }
     },
     "updated": {
@@ -301,5 +524,35 @@
       "format": "date",
       "description": "Date the profile was last reviewed by the candidate (YYYY-MM-DD)."
     }
-  }
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "handle"
+          ]
+        }
+      ]
+    },
+    {
+      "anyOf": [
+        {
+          "required": [
+            "contact"
+          ]
+        },
+        {
+          "required": [
+            "contact_methods"
+          ]
+        }
+      ]
+    }
+  ]
 }

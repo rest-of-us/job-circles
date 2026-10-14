@@ -44,7 +44,8 @@ This project takes a different approach:
 | [`profiles/community/`](profiles/community) | Community hub for regions without a hub yet. |
 | [`circles.html`](circles.html) · [`start-circle.html`](start-circle.html) | Peer circle finder (map, in-person-first matching) and the form to start a circle. |
 | [`circles/`](circles) | Circle schema, sample circles, and one file per circle in `circles/entries/`, merged into `circles/index.json`. |
-| [`assets/`](assets) | Shared scripts: `geo.js` (city search, distances, timezones) and `jobflo.js` (JobFlo cross-promotion copy). |
+| [`js/`](js) | Shared scripts: `hubs.js` (hub discovery, federation and IndexedDB caching), `geo.js` (city search, distances, timezones) and `jobflo.js` (JobFlo cross-promotion copy). |
+| [`SELF_HOSTING.md`](SELF_HOSTING.md) | Running your own node or hub, federating with others, and handling profile PRs and removals safely. |
 | [`.github/workflows/`](.github/workflows) | `validate-submissions.yml` checks profile and circle PRs; `build-feeds.yml` rebuilds the feeds on merge. |
 
 ---
@@ -68,7 +69,10 @@ This project takes a different approach:
 
 To **update** your profile, use **Import your JSON file** in the profile builder, edit, and submit again, or open a PR by hand. To **remove** it, open a PR that deletes the file, or ask a hub maintainer in an issue.
 
-> **Privacy:** everything in your profile is public and can be copied by anyone. Only include contact details you're comfortable publishing. A LinkedIn URL or booking link is a good alternative to an email address.
+> **Privacy:** everything in your profile is public and can be copied by anyone.
+>
+> - **Handle instead of a name.** You can use a handle instead of your legal name. Your identity is anchored by the GitHub account that submits the profile and by peer vouches.
+> - **Encoded contact details.** Email, Proton alias, Matrix and Signal contacts go in `contact_methods` and are base64-encoded, so they never appear as plain text for crawlers to harvest. The site decodes them only when a visitor clicks **Reveal contact**. This is obfuscation, not encryption: a determined person can still decode them. Plain email addresses aren't accepted in schema 1.1.
 
 ### Peer vouches
 
@@ -88,6 +92,28 @@ A vouch is a short, signed statement from someone who worked with you.
 3. After merge, a maintainer (or the hub's CI) sets `verification_url` to the merged PR, which shows up as a **Verify →** link on the profile.
 
 Valid relationships are `manager`, `direct_report`, `peer`, `tech_lead`, `client`, `open_source_collaborator` and `mentor`.
+
+#### Signed vouches (optional)
+
+A signed vouch proves it was written by the holder of a key on the voucher's GitHub account, and that it hasn't been edited or moved to another profile since. After adding your vouch entry:
+
+```bash
+# SSH: uses a key that's on github.com/<you>.keys
+node scripts/sign-vouch.mjs profiles/community/<candidate>.json <your-github> ~/.ssh/id_ed25519
+```
+
+The script signs the canonical vouch text (see [`scripts/vouch-message.mjs`](scripts/vouch-message.mjs)) and fills in `signature_format`, `public_key_fingerprint` and `signature`.
+
+For OpenPGP, the key must be on `github.com/<you>.gpg`:
+
+```bash
+node scripts/vouch-message.mjs profiles/community/<candidate>.json <your-github> > vouch.txt
+gpg --armor --detach-sign vouch.txt          # paste vouch.txt.asc into "signature"
+```
+
+Then set `"signature_format": "openpgp"` and your 40-character key fingerprint.
+
+The pull-request check verifies every new or changed signature against your public keys on GitHub and rejects any mismatch. Signed vouches show a **Signed** badge on the site.
 
 ---
 
@@ -160,8 +186,10 @@ Go to **https://rest-of-us.github.io/job-circles** and:
 
 - search across skills, systems, roles and locations (fuzzy matching, so `kafka` finds `event streaming with Kafka`);
 - filter by **skill tags**, **timezone range** (with Americas / EMEA / APAC overlap presets), **work preference** (B2B contract, full-time via EOR, …), **seniority** and **peer-vouched** status;
-- click **Contact** to reach the candidate directly by email, booking link or LinkedIn;
-- click **JSON** on a card to download that profile, or **Export CSV / JSON** to save your filtered shortlist;
+- click **Reveal contact** to decode a candidate's private contact methods (email, Proton alias, Matrix, Signal) in your browser, or use their public booking link or LinkedIn;
+- click **JSON** on a card to download that profile. To save your filtered shortlist, use **Export CSV** (includes decoded contacts, for your own tracker), **JSON** (profiles as published), or **Atom feed** (`feed.xml`, for feed readers and ATS importers; no contact details, entries link back to each profile);
+- add **other hubs or registries** under *Hubs & feeds*. They're saved in your browser and searched alongside the defaults. Responses are cached in IndexedDB (1 hour by default, adjustable);
+- share a specific profile with **Copy link** (`#profile=<hub>:<id>`);
 - click **Copy search link** to share a search. All filters are stored in the URL.
 
 ### Query the raw feeds
@@ -172,13 +200,14 @@ Every hub is plain JSON over HTTPS. No API key, no rate-limited API.
 # List all hub feeds
 curl -s https://rest-of-us.github.io/job-circles/hubs.json | jq -r '.hubs[].profiles_url'
 
-# Staff+ engineers in LATAM open to B2B contracts who know Kubernetes
-curl -s https://rest-of-us.github.io/hub-latam/profiles.json | jq '
+# Staff+ engineers open to B2B contracts who know Kubernetes, with contacts decoded
+curl -s https://rest-of-us.github.io/job-circles/profiles/community.json | jq '
   .[] | select(
     (.seniority | IN("staff","principal","distinguished")) and
     (.work_preferences | index("contract_b2b")) and
     (.core_competencies | index("kubernetes"))
-  ) | {name, headline, timezone, contact}'
+  ) | {who: (.name // .handle), headline, timezone,
+       contact: [.contact_methods[]? | {type, value: (.value | @base64d)}]}'
 ```
 
 ```js
@@ -198,7 +227,7 @@ Please be a good citizen: contact people about roles that match their stated pre
 
 ## Running locally
 
-The site uses `fetch()`, so open it through a local web server instead of `file://`:
+The site uses `fetch()`, so open it through a local web server instead of `file://`. Every path is relative, so a fork or a copy on any static host works unchanged. See [SELF_HOSTING.md](SELF_HOSTING.md) for running your own node or hub.
 
 ```bash
 git clone https://github.com/rest-of-us/job-circles.git

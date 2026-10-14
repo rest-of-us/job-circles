@@ -29,8 +29,8 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="assets/geo.js"></script>
-  <script src="assets/jobflo.js" defer></script>
+  <script src="js/geo.js"></script>
+  <script src="js/jobflo.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -183,13 +183,14 @@
 'use strict';
 
 const FEEDS = [
-  { url: 'circles/index.json', sample: false },
-  { url: 'circles/demo.json', sample: true }
+  { url: './circles/index.json', sample: false },
+  { url: './circles/demo.json', sample: true }
 ];
 const STALE_DAYS = 90;
 const REGIONAL_KM = 3000;     // online circles beyond this need the same country
 const ORIGIN_KEY = 'trou-circle-origin';
-const REPO = 'rest-of-us/job-circles';
+// Where circle edits go. Read from ./hubs.json so forks point at their own repo.
+let REPO = 'rest-of-us/job-circles', BRANCH = 'main', DIR = 'circles/entries';
 
 const FORMAT = {
   in_person: { label: 'In person', color: '#10b981', badge: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' },
@@ -218,6 +219,11 @@ function plausible(c) {
 }
 
 async function load() {
+  try {
+    const reg = await (await fetch('./hubs.json', { cache: 'no-cache' })).json();
+    const sub = reg?.circles?.submit;
+    if (sub?.repository) { REPO = sub.repository; BRANCH = sub.branch || BRANCH; DIR = sub.path || DIR; }
+  } catch {}
   const seen = new Set();
   const results = await Promise.allSettled(FEEDS.map(async (f) => {
     const res = await fetch(f.url, { cache: 'no-cache' });
@@ -324,7 +330,7 @@ function card(x) {
   const c = x.c, f = FORMAT[c.format], left = seatsLeft(c), joinable = isJoinable(c) && left > 0;
   const link = joinLink(c);
   const place = [c.location.city, Geo.countryName(c.location.country)].filter(Boolean).join(', ');
-  const editUrl = c._sample ? '' : `https://github.com/${REPO}/edit/main/circles/entries/${encodeURIComponent(c.id)}.json`;
+  const editUrl = c._sample ? '' : `https://github.com/${REPO}/edit/${BRANCH}/${DIR}/${encodeURIComponent(c.id)}.json`;
   return `<article id="circle-${esc(c.id)}" class="card mb-3 scroll-mt-24">
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div class="min-w-0">

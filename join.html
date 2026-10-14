@@ -29,7 +29,8 @@
       }
     };
   </script>
-  <script src="assets/jobflo.js" defer></script>
+  <script src="js/hubs.js"></script>
+  <script src="js/jobflo.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -99,8 +100,12 @@
           <h2 id="s-about" class="section-title">About you</h2>
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
-              <label for="name" class="label req">Name</label>
+              <label for="name" id="nameLabel" class="label req">Name</label>
               <input id="name" class="field" autocomplete="name" maxlength="80" placeholder="What people call you">
+              <label class="mt-2 flex cursor-pointer items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                <input id="useHandle" type="checkbox" class="h-3.5 w-3.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                Use a handle instead of my real name
+              </label>
             </div>
             <div>
               <label for="pronouns" class="label">Pronouns</label>
@@ -217,12 +222,18 @@
         <!-- Contact -->
         <section class="card" aria-labelledby="s-contact">
           <h2 id="s-contact" class="section-title">How recruiters reach you</h2>
-          <p class="hint">At least one is required. <strong>Everything here is public</strong>, so a booking link or LinkedIn is a good alternative to email.</p>
-          <div id="contactGroup" class="mt-4 grid gap-4 rounded-lg sm:grid-cols-2">
+          <p class="hint">Add at least one private contact method or public link.</p>
+          <div id="contactGroup" class="mt-4 rounded-lg">
+          <div class="flex items-start justify-between gap-4">
             <div>
-              <label for="email" class="label">Email</label>
-              <input id="email" type="email" class="field" autocomplete="email" placeholder="you@example.com">
+              <h3 class="text-sm font-medium">Private contact methods</h3>
+              <p class="hint max-w-xl">Email, a Proton or SimpleLogin alias, Matrix or Signal. We base64-encode these, so they never appear as plain text in your published file and crawlers can't harvest them. It isn't encryption: anyone who clicks <em>Reveal contact</em> on the site can read them. Never use a phone number.</p>
             </div>
+            <button type="button" class="btn shrink-0" data-add="method">+ Add</button>
+          </div>
+          <div id="methods" class="mt-3 space-y-2"></div>
+          <h3 class="mt-6 text-sm font-medium">Public links</h3>
+          <div class="mt-2 grid gap-4 sm:grid-cols-2">
             <div>
               <label for="linkedin" class="label">LinkedIn URL</label>
               <input id="linkedin" type="url" class="field" placeholder="https://www.linkedin.com/in/…">
@@ -235,6 +246,7 @@
               <label for="calendar" class="label">Booking link</label>
               <input id="calendar" type="url" class="field" placeholder="https://cal.com/…">
             </div>
+          </div>
           </div>
           <details class="mt-5">
             <summary class="cursor-pointer text-sm font-medium">Expected compensation (optional)</summary>
@@ -487,6 +499,33 @@ function addPow(d = {}) {
     </div>`);
 }
 
+const METHOD_TYPES = {
+  email_base64: ['Email', 'you@example.com'],
+  proton_alias: ['Proton / SimpleLogin alias', 'alias@passmail.net'],
+  matrix: ['Matrix ID', '@you:matrix.org'],
+  signal: ['Signal username', 'yourname.42']
+};
+
+function addMethod(d = {}) {
+  if ($$('#methods .row').length >= 5) return toast('Up to 5 contact methods');
+  const type = d.type in METHOD_TYPES ? d.type : 'email_base64';
+  $('#methods').insertAdjacentHTML('beforeend', `
+    <div class="row flex flex-wrap items-end gap-3 py-3">
+      <div class="w-52">
+        <label class="sr-only">Type</label>
+        <select data-k="type" class="field mt-0">${Object.entries(METHOD_TYPES).map(([k, [l]]) => `<option value="${k}"${k === type ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>
+      </div>
+      <div class="min-w-[12rem] flex-1">
+        <label class="sr-only">Value</label>
+        <input data-k="value" class="field mt-0" autocomplete="off" spellcheck="false" placeholder="${esc(METHOD_TYPES[type][1])}" value="${esc(d.value)}">
+      </div>
+      <button type="button" data-remove class="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-rose-600 dark:hover:bg-slate-800" aria-label="Remove contact method"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>`);
+}
+
+const b64encode = (str) => btoa(String.fromCharCode(...new TextEncoder().encode(str)));
+const b64decode = (v) => { try { return new TextDecoder().decode(Uint8Array.from(atob(String(v)), (c) => c.charCodeAt(0))); } catch { return ''; } };
+
 function addLanguage(d = {}) {
   $('#languages').insertAdjacentHTML('beforeend', `
     <div class="row flex flex-wrap items-end gap-3 py-3">
@@ -534,10 +573,10 @@ function rows(container, keys) {
 const splitList = (s, sep) => s.split(sep).map((x) => x.trim()).filter(Boolean);
 
 function collect() {
-  const p = { schema_version: '1.0' };
+  const p = { schema_version: '1.1' };
   const gh = val('github');
   p.id = gh.toLowerCase();
-  p.name = val('name');
+  if ($('#useHandle').checked) p.handle = val('name'); else p.name = val('name');
   if (val('pronouns')) p.pronouns = val('pronouns');
   p.headline = val('headline');
   if (val('summary')) p.summary = val('summary');
@@ -589,8 +628,12 @@ function collect() {
     if (comp.max) p.compensation.max = Number(comp.max);
   }
 
-  p.contact = {};
-  for (const k of ['email', 'linkedin', 'website', 'calendar']) if (val(k)) p.contact[k] = val(k);
+  const contact = {};
+  for (const k of ['linkedin', 'website', 'calendar']) if (val(k)) contact[k] = val(k);
+  if (Object.keys(contact).length) p.contact = contact;
+  const methods = rows('#methods', ['type', 'value']).filter((m) => m.value)
+    .map((m, i) => ({ type: m.type, value: b64encode(m.value), ...(i === 0 ? { preferred: true } : {}) }));
+  if (methods.length) p.contact_methods = methods;
 
   p.updated = new Date().toISOString().slice(0, 10);
   return p;
@@ -598,7 +641,9 @@ function collect() {
 
 function fill(p) {
   const set = (id, v) => { const el = $('#' + id); if (el) el.value = v ?? ''; };
-  set('name', p.name); set('pronouns', p.pronouns); set('github', p.github || p.id);
+  $('#useHandle').checked = !p.name && !!p.handle;
+  setNameMode();
+  set('name', p.name || p.handle); set('pronouns', p.pronouns); set('github', p.github || p.id);
   set('headline', p.headline); set('summary', p.summary); set('seniority', p.seniority);
   set('country', p.location?.country); set('city', p.location?.city);
   set('region', p.region); state.regionTouched = !!p.region;
@@ -606,7 +651,10 @@ function fill(p) {
   set('startUtc', p.working_hours_overlap?.earliest_start_utc); set('endUtc', p.working_hours_overlap?.latest_end_utc);
   $$('#prefs input').forEach((i) => { i.checked = (p.work_preferences || []).includes(i.value); });
   set('availability', p.availability);
-  for (const k of ['email', 'linkedin', 'website', 'calendar']) set(k, p.contact?.[k]);
+  for (const k of ['linkedin', 'website', 'calendar']) set(k, p.contact?.[k]);
+  $('#methods').innerHTML = '';
+  (p.contact_methods || []).forEach((m) => addMethod({ type: m.type, value: b64decode(m.value) }));
+  if (p.contact?.email) addMethod({ type: 'email_base64', value: p.contact.email });   // pre-1.1 profiles
   set('compCurrency', p.compensation?.currency); set('compMin', p.compensation?.min); set('compMax', p.compensation?.max);
   if (p.compensation?.period) set('compPeriod', p.compensation.period);
 
@@ -627,7 +675,9 @@ function validate(p) {
   const warnings = [];
   const err = (el, msg) => errors.push({ el, msg });
 
-  if (p.name.length < 2) err('#name', 'Add your name');
+  if ($('#useHandle').checked) {
+    if (!/^[A-Za-z0-9][A-Za-z0-9._-]{1,38}$/.test(p.handle || '')) err('#name', 'Handles are 2–39 letters, numbers, dots, dashes or underscores');
+  } else if ((p.name || '').length < 2) err('#name', 'Add your name');
   if (!p.github) err('#github', 'Add your GitHub username');
   else if (!RE.github.test(p.github) || p.id.length < 3) err('#github', 'GitHub username doesn’t look valid');
   if (!p.seniority) err('#seniority', 'Choose your level of scope');
@@ -658,9 +708,22 @@ function validate(p) {
     if (!RE.https.test(w.url)) err(powRows[i].querySelector('[data-k="url"]'), `Link ${i + 1}: use a full https:// URL`);
   });
 
-  const c = p.contact;
-  if (!Object.keys(c).length) err('#contactGroup', 'Add at least one way to contact you');
-  if (c.email && !RE.email.test(c.email)) err('#email', 'Email address doesn’t look valid');
+  const c = p.contact || {};
+  if (!Object.keys(c).length && !(p.contact_methods || []).length) err('#contactGroup', 'Add at least one way to contact you');
+  $$('#methods .row').forEach((row, i) => {
+    const type = row.querySelector('[data-k="type"]').value;
+    const input = row.querySelector('[data-k="value"]');
+    const v = input.value.trim();
+    if (!v) return;
+    const label = `Contact ${i + 1}`;
+    if ((type === 'email_base64' || type === 'proton_alias') && !RE.email.test(v)) err(input, `${label}: email address doesn’t look valid`);
+    if (type === 'matrix' && !/^@[^:\s]+:[^\s]+\.[^\s]+$/.test(v)) err(input, `${label}: Matrix IDs look like @name:matrix.org`);
+    if (type === 'signal') {
+      if (/^\+?[\d\s().-]{7,}$/.test(v)) err(input, `${label}: use a Signal username, not a phone number`);
+      else if (!/^[A-Za-z0-9_]{3,32}\.\d{2,9}$/.test(v) && !/^https:\/\/signal\.me\/\S+$/.test(v)) err(input, `${label}: Signal usernames look like name.42, or paste a signal.me link`);
+    }
+    if (v.length > 290) err(input, `${label}: too long`);
+  });
   if (c.linkedin && !RE.linkedin.test(c.linkedin)) err('#linkedin', 'LinkedIn URL should start with https://www.linkedin.com/');
   if (c.website && !RE.https.test(c.website)) err('#website', 'Website should be a full https:// URL');
   if (c.calendar && !RE.https.test(c.calendar)) err('#calendar', 'Booking link should be a full https:// URL');
@@ -691,16 +754,16 @@ const REQUIRED_STEPS = 13;  // rough count of required items, for the progress b
  * ------------------------------------------------------------------ */
 async function loadHubs() {
   try {
-    const res = await fetch('hubs.json', { cache: 'no-cache' });
-    const reg = await res.json();
+    const reg = (await Hubs.cachedFetch('./hubs.json')).data;
     state.hubs = (reg.hubs || []).filter((h) => h.submit && !['disabled', 'demo', 'planned'].includes(h.status));
   } catch { state.hubs = []; }
 
   await Promise.all(state.hubs.map(async (h) => {
     if (h.always_open) { state.hubAvailable[h.id] = true; return; }
     try {
-      const r = await fetch(`https://api.github.com/repos/${h.submit.repository}`, { headers: { Accept: 'application/vnd.github+json' } });
-      state.hubAvailable[h.id] = r.ok;
+      // Cached, to stay well under GitHub's 60 requests/hour limit for anonymous API calls.
+      await Hubs.cachedFetch(`https://api.github.com/repos/${h.submit.repository}`);
+      state.hubAvailable[h.id] = true;
     } catch { state.hubAvailable[h.id] = false; }
   }));
   update();
@@ -725,8 +788,7 @@ function renderDestination(p) {
 
 async function profileExists(hub, id) {
   try {
-    const res = await fetch(new URL(hub.profiles_url, location.href), { cache: 'no-cache' });
-    const data = await res.json();
+    const { data } = await Hubs.cachedFetch(new URL(hub.profiles_url, location.href).href, { force: true });
     const list = Array.isArray(data) ? data : data.profiles || [];
     return list.some((p) => p && p.id === id);
   } catch { return false; }
@@ -871,6 +933,13 @@ async function submit() {
 /* ------------------------------------------------------------------ *
  * Events & init
  * ------------------------------------------------------------------ */
+function setNameMode() {
+  const handle = $('#useHandle').checked;
+  $('#nameLabel').textContent = handle ? 'Handle' : 'Name';
+  $('#name').placeholder = handle ? 'e.g. quietbuilder' : 'What people call you';
+  $('#name').autocomplete = handle ? 'off' : 'name';
+}
+
 function regionForCountry(c) {
   for (const [region, list] of Object.entries(COUNTRY_REGION)) if (list.split(' ').includes(c)) return region;
   return c ? 'europe' : '';
@@ -883,6 +952,10 @@ function bind() {
   form.addEventListener('submit', (e) => e.preventDefault());
 
   $('#region').addEventListener('change', () => { state.regionTouched = true; });
+  $('#useHandle').addEventListener('change', setNameMode);
+  $('#methods').addEventListener('change', (e) => {
+    if (e.target.dataset.k === 'type') e.target.closest('.row').querySelector('[data-k="value"]').placeholder = METHOD_TYPES[e.target.value][1];
+  });
   $('#country').addEventListener('change', (e) => {
     if (!state.regionTouched) { $('#region').value = regionForCountry(e.target.value); update(); }
   });
@@ -890,8 +963,9 @@ function bind() {
   form.addEventListener('click', (e) => {
     const add = e.target.closest('[data-add]');
     if (add) {
-      ({ impact: addImpact, pow: addPow, language: addLanguage })[add.dataset.add]();
-      if (add.dataset.add !== 'impact') $$(`#${add.dataset.add === 'pow' ? 'pows' : 'languages'} .row`).at(-1)?.querySelector('input')?.focus();
+      ({ impact: addImpact, pow: addPow, language: addLanguage, method: addMethod })[add.dataset.add]();
+      const box = { pow: 'pows', language: 'languages', method: 'methods' }[add.dataset.add];
+      if (box) $$(`#${box} .row`).at(-1)?.querySelector('input')?.focus();
       update();
       return;
     }

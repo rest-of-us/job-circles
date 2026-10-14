@@ -27,7 +27,7 @@
       }
     };
   </script>
-  <script src="assets/geo.js"></script>
+  <script src="js/geo.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -250,9 +250,11 @@
 <script>
 'use strict';
 
-const REPO = 'rest-of-us/job-circles';
-const DIR = 'circles/entries';
-const FEED = 'circles/index.json';
+// Submit target, overridden by "circles.submit" in ./hubs.json so forks use their own repo.
+let REPO = 'rest-of-us/job-circles';
+let BRANCH = 'main';
+let DIR = 'circles/entries';
+const FEED = './circles/index.json';
 const DRAFT_KEY = 'trou-circle-draft';
 const ORIGIN_KEY = 'trou-circle-origin';
 const MAX_PREFILL_URL = 7500;
@@ -452,13 +454,13 @@ async function submit() {
   const base = `https://github.com/${REPO}`;
   let url, steps;
   if (await exists(current.id)) {
-    url = `${base}/edit/main/${DIR}/${encodeURIComponent(file)}`;
+    url = `${base}/edit/${BRANCH}/${DIR}/${encodeURIComponent(file)}`;
     const copied = await copyJson(true);
     steps = `<p class="font-semibold">Update your circle</p><ol class="mt-2 list-decimal space-y-1 pl-5"><li>${copied ? 'The updated file is on your clipboard.' : 'Click <strong>Copy JSON</strong>.'}</li><li>In GitHub, select all the text and paste over it.</li><li><strong>Commit changes… → Propose changes → Create pull request</strong>.</li></ol>`;
   } else {
-    url = `${base}/new/main/${DIR}?filename=${encodeURIComponent(file)}&value=${encodeURIComponent(circleJson())}`;
+    url = `${base}/new/${BRANCH}/${DIR}?filename=${encodeURIComponent(file)}&value=${encodeURIComponent(circleJson())}`;
     if (url.length > MAX_PREFILL_URL) {
-      url = `${base}/new/main/${DIR}?filename=${encodeURIComponent(file)}`;
+      url = `${base}/new/${BRANCH}/${DIR}?filename=${encodeURIComponent(file)}`;
       const copied = await copyJson(true);
       steps = `<p class="font-semibold">Almost there</p><ol class="mt-2 list-decimal space-y-1 pl-5"><li>${copied ? 'The file is on your clipboard.' : 'Click <strong>Copy JSON</strong>.'} Paste it into the GitHub editor.</li><li><strong>Commit changes… → Propose changes → Create pull request</strong>.</li></ol>`;
     } else {
@@ -527,6 +529,10 @@ function bind() {
 }
 
 function init() {
+  fetch('./hubs.json', { cache: 'no-cache' }).then((r) => r.json()).then((reg) => {
+    const s = reg?.circles?.submit;
+    if (s?.repository) { REPO = s.repository; BRANCH = s.branch || 'main'; DIR = s.path || DIR; }
+  }).catch(() => {});
   bind();
   let draft = null, origin = null;
   try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch {}

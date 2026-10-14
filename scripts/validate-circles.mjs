@@ -27,7 +27,8 @@ const author = PR_AUTHOR.toLowerCase();
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 addFormats(ajv);
-const validateSchema = ajv.compile(JSON.parse(readFileSync('circles/schema.json', 'utf8')));
+// The schema is read from next to this script, so CI can run a trusted (base-branch) copy against PR data.
+const validateSchema = ajv.compile(JSON.parse(readFileSync(new URL('../circles/schema.json', import.meta.url), 'utf8')));
 
 const errors = [];
 const fail = (file, msg) => errors.push({ file, msg });

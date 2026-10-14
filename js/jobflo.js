@@ -2,7 +2,7 @@
 // this project's contributors. Edit the copy here; every page picks it up.
 //
 // Usage: <div data-promo="jobflo" data-variant="banner|card"></div>
-//        <script src="assets/jobflo.js" defer></script>
+//        <script src="js/jobflo.js" defer></script>
 'use strict';
 
 (() => {

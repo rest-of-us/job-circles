@@ -1,6 +1,6 @@
 [
   {
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "id": "demo-amara-nwosu",
     "name": "Amara Nwosu",
     "pronouns": "she/her",
@@ -8,45 +8,113 @@
     "summary": "I design ledgers and settlement systems that must never lose a penny. Most of my work sits where correctness, regulators and very high throughput meet.",
     "seniority": "principal",
     "region": "uk",
-    "location": { "country": "GB", "city": "Manchester" },
+    "location": {
+      "country": "GB",
+      "city": "Manchester"
+    },
     "timezone": "UTC",
-    "working_hours_overlap": { "earliest_start_utc": "07:00", "latest_end_utc": "19:00" },
-    "work_preferences": ["contract_b2b", "fulltime_eor"],
+    "working_hours_overlap": {
+      "earliest_start_utc": "07:00",
+      "latest_end_utc": "19:00"
+    },
+    "work_preferences": [
+      "contract_b2b",
+      "fulltime_eor"
+    ],
     "availability": "1_month",
     "languages": [
-      { "language": "English", "proficiency": "native" },
-      { "language": "Yoruba", "proficiency": "fluent" }
+      {
+        "language": "English",
+        "proficiency": "native"
+      },
+      {
+        "language": "Yoruba",
+        "proficiency": "fluent"
+      }
     ],
-    "core_competencies": ["distributed-systems", "event-sourcing", "kafka", "postgresql", "go", "payments", "system-design", "technical-leadership"],
+    "core_competencies": [
+      "distributed-systems",
+      "event-sourcing",
+      "kafka",
+      "postgresql",
+      "go",
+      "payments",
+      "system-design",
+      "technical-leadership"
+    ],
     "major_impact": [
       {
         "title": "Rebuilt the settlement ledger for a national payments scheme",
         "role": "Lead architect",
         "organization": "UK payments infrastructure provider",
         "summary": "Replaced a nightly batch ledger with an event-sourced double-entry ledger, so settlement could run in near real time while keeping every entry auditable.",
-        "architecture": ["event-sourcing", "kafka", "postgresql", "go"],
-        "metrics": ["Settlement window: 24h → 90s", "Zero reconciliation breaks in production", "40M entries/day"]
+        "architecture": [
+          "event-sourcing",
+          "kafka",
+          "postgresql",
+          "go"
+        ],
+        "metrics": [
+          "Settlement window: 24h → 90s",
+          "Zero reconciliation breaks in production",
+          "40M entries/day"
+        ]
       },
       {
         "title": "Brought a fintech's platform team from 3 to 22 engineers",
         "role": "Head of platform",
         "summary": "Set up the platform group, wrote the RFC process and on-call model, and moved services onto a shared deployment platform.",
-        "metrics": ["Deploy frequency 4×", "MTTR down 70%"]
+        "metrics": [
+          "Deploy frequency 4×",
+          "MTTR down 70%"
+        ]
       }
     ],
     "proof_of_work": [
-      { "title": "ledger-kit — double-entry primitives for Go", "url": "https://github.com/example/ledger-kit", "type": "repository", "description": "Library for idempotent, append-only accounting entries." },
-      { "title": "Talk: Exactly-once is a lie, idempotency is not", "url": "https://example.com/talks/idempotency", "type": "talk" }
+      {
+        "title": "ledger-kit — double-entry primitives for Go",
+        "url": "https://github.com/example/ledger-kit",
+        "type": "repository",
+        "description": "Library for idempotent, append-only accounting entries."
+      },
+      {
+        "title": "Talk: Exactly-once is a lie, idempotency is not",
+        "url": "https://example.com/talks/idempotency",
+        "type": "talk"
+      }
     ],
     "vouches": [
-      { "vouched_by": "Tom Reyes", "vouched_by_github": "example-treyes", "relationship": "manager", "statement": "Amara owned the ledger redesign end to end. It is the most reliable system I have run.", "date": "2026-08-02", "verification_url": "https://github.com/rest-of-us/hub-uk/pull/1" },
-      { "vouched_by": "Priya Shah", "vouched_by_github": "example-pshah", "relationship": "peer", "date": "2026-08-10" }
+      {
+        "vouched_by": "Tom Reyes",
+        "vouched_by_github": "example-treyes",
+        "relationship": "manager",
+        "statement": "Amara owned the ledger redesign end to end. It is the most reliable system I have run.",
+        "date": "2026-08-02",
+        "signature_format": "ssh",
+        "public_key_fingerprint": "SHA256:nBife5cBzieZjKD/0fFLbHg4UFVsctqEqgmhmdBR3rA",
+        "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgW06yFGqUgBHu4ee+o4042fLlHa\nCGvimX87rtXnjcL8AAAAAUdGhlLXJlc3Qtb2YtdXMtdm91Y2gAAAAAAAAABnNoYTUxMgAA\nAFMAAAALc3NoLWVkMjU1MTkAAABA/RP8Wtb/Rgz/8GCY1eXq3H/iWDRMOtlBSgPsxBnZlB\n2ZBUWd3PE/cq6rWyeGgMNG61Lb0jpeXTpSkvRLQbHGBA==\n-----END SSH SIGNATURE-----"
+      },
+      {
+        "vouched_by": "Priya Shah",
+        "vouched_by_github": "example-pshah",
+        "relationship": "peer",
+        "date": "2026-08-10"
+      }
     ],
-    "contact": { "email": "amara@example.com", "linkedin": "https://www.linkedin.com/in/example" },
+    "contact": {
+      "linkedin": "https://www.linkedin.com/in/example"
+    },
+    "contact_methods": [
+      {
+        "type": "email_base64",
+        "value": "YW1hcmFAZXhhbXBsZS5jb20=",
+        "preferred": true
+      }
+    ],
     "updated": "2026-09-30"
   },
   {
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "id": "demo-mateo-ferreira",
     "name": "Mateo Ferreira",
     "pronouns": "he/him",
@@ -54,141 +122,338 @@
     "summary": "I build internal platforms that product teams actually want to use, and keep the cloud bill honest along the way.",
     "seniority": "staff",
     "region": "latam",
-    "location": { "country": "BR", "city": "Florianópolis" },
+    "location": {
+      "country": "BR",
+      "city": "Florianópolis"
+    },
     "timezone": "UTC-3",
-    "work_preferences": ["contract_b2b"],
+    "work_preferences": [
+      "contract_b2b"
+    ],
     "availability": "2_weeks",
     "languages": [
-      { "language": "Portuguese", "proficiency": "native" },
-      { "language": "English", "proficiency": "fluent" },
-      { "language": "Spanish", "proficiency": "professional" }
+      {
+        "language": "Portuguese",
+        "proficiency": "native"
+      },
+      {
+        "language": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "language": "Spanish",
+        "proficiency": "professional"
+      }
     ],
-    "core_competencies": ["kubernetes", "platform-engineering", "terraform", "aws", "go", "finops", "observability"],
+    "core_competencies": [
+      "kubernetes",
+      "platform-engineering",
+      "terraform",
+      "aws",
+      "go",
+      "finops",
+      "observability"
+    ],
     "major_impact": [
       {
         "title": "Internal developer platform for 300 engineers",
         "role": "Tech lead (team of 6)",
         "organization": "Latin American e-commerce marketplace",
         "summary": "Designed a golden-path platform on EKS with templated services, preview environments and built-in observability.",
-        "architecture": ["kubernetes", "argo-cd", "terraform", "opentelemetry"],
-        "metrics": ["New service to production: 2 weeks → 40 minutes", "Cloud spend down 31%"]
+        "architecture": [
+          "kubernetes",
+          "argo-cd",
+          "terraform",
+          "opentelemetry"
+        ],
+        "metrics": [
+          "New service to production: 2 weeks → 40 minutes",
+          "Cloud spend down 31%"
+        ]
       }
     ],
     "proof_of_work": [
-      { "title": "Contributions to Karpenter", "url": "https://github.com/example/karpenter", "type": "open_source_contribution" },
-      { "title": "Write-up: Cutting EKS costs by a third", "url": "https://example.com/blog/eks-costs", "type": "case_study" }
+      {
+        "title": "Contributions to Karpenter",
+        "url": "https://github.com/example/karpenter",
+        "type": "open_source_contribution"
+      },
+      {
+        "title": "Write-up: Cutting EKS costs by a third",
+        "url": "https://example.com/blog/eks-costs",
+        "type": "case_study"
+      }
     ],
     "vouches": [
-      { "vouched_by": "Lucía Gómez", "vouched_by_github": "example-lgomez", "relationship": "manager", "statement": "Mateo's platform work changed how our whole engineering org ships.", "date": "2026-07-19" }
+      {
+        "vouched_by": "Lucía Gómez",
+        "vouched_by_github": "example-lgomez",
+        "relationship": "manager",
+        "statement": "Mateo's platform work changed how our whole engineering org ships.",
+        "date": "2026-07-19"
+      }
     ],
-    "contact": { "email": "mateo@example.com", "calendar": "https://cal.com/example" },
+    "contact": {
+      "calendar": "https://cal.com/example"
+    },
+    "contact_methods": [
+      {
+        "type": "email_base64",
+        "value": "bWF0ZW9AZXhhbXBsZS5jb20=",
+        "preferred": true
+      },
+      {
+        "type": "signal",
+        "value": "bWF0ZW8uNDI="
+      }
+    ],
     "updated": "2026-09-12"
   },
   {
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "id": "demo-anjali-rao",
     "name": "Anjali Rao",
     "headline": "Principal ML engineer — search ranking and recommendation systems",
     "seniority": "principal",
     "region": "apac",
-    "location": { "country": "IN", "city": "Bengaluru" },
+    "location": {
+      "country": "IN",
+      "city": "Bengaluru"
+    },
     "timezone": "UTC+5:30",
-    "work_preferences": ["fulltime_eor", "fractional"],
+    "work_preferences": [
+      "fulltime_eor",
+      "fractional"
+    ],
     "availability": "3_months",
     "languages": [
-      { "language": "English", "proficiency": "fluent" },
-      { "language": "Hindi", "proficiency": "native" },
-      { "language": "Kannada", "proficiency": "native" }
+      {
+        "language": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "language": "Hindi",
+        "proficiency": "native"
+      },
+      {
+        "language": "Kannada",
+        "proficiency": "native"
+      }
     ],
-    "core_competencies": ["machine-learning", "search", "recommendation-systems", "python", "pytorch", "feature-stores", "mlops"],
+    "core_competencies": [
+      "machine-learning",
+      "search",
+      "recommendation-systems",
+      "python",
+      "pytorch",
+      "feature-stores",
+      "mlops"
+    ],
     "major_impact": [
       {
         "title": "Learning-to-rank search for a 90M-user travel app",
         "role": "Principal engineer",
         "summary": "Replaced hand-tuned relevance rules with a learning-to-rank stack, plus an offline/online evaluation loop the product team could run on its own.",
-        "architecture": ["pytorch", "feature-store", "vector-search"],
-        "metrics": ["Search conversion +14%", "Experiment cycle: 3 weeks → 3 days"]
+        "architecture": [
+          "pytorch",
+          "feature-store",
+          "vector-search"
+        ],
+        "metrics": [
+          "Search conversion +14%",
+          "Experiment cycle: 3 weeks → 3 days"
+        ]
       },
       {
         "title": "Company-wide ML platform",
         "role": "Architect",
         "summary": "Unified training, feature and serving infrastructure for eleven ML teams.",
-        "metrics": ["Model deployment time down 85%"]
+        "metrics": [
+          "Model deployment time down 85%"
+        ]
       }
     ],
     "proof_of_work": [
-      { "title": "Paper: Counterfactual evaluation for travel search", "url": "https://example.com/papers/counterfactual", "type": "publication" }
+      {
+        "title": "Paper: Counterfactual evaluation for travel search",
+        "url": "https://example.com/papers/counterfactual",
+        "type": "publication"
+      }
     ],
     "vouches": [],
-    "contact": { "linkedin": "https://www.linkedin.com/in/example" },
+    "contact": {
+      "linkedin": "https://www.linkedin.com/in/example"
+    },
     "updated": "2026-10-01"
   },
   {
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "id": "demo-liam-tremblay",
     "name": "Liam Tremblay",
     "pronouns": "they/them",
     "headline": "Security architect — zero-trust networks and identity for regulated industries",
     "seniority": "distinguished",
     "region": "canada",
-    "location": { "country": "CA", "city": "Montréal" },
+    "location": {
+      "country": "CA",
+      "city": "Montréal"
+    },
     "timezone": "UTC-5",
-    "work_preferences": ["contract_b2b", "fulltime_eor", "fractional"],
+    "work_preferences": [
+      "contract_b2b",
+      "fulltime_eor",
+      "fractional"
+    ],
     "availability": "immediately",
     "languages": [
-      { "language": "French", "proficiency": "native" },
-      { "language": "English", "proficiency": "native" }
+      {
+        "language": "French",
+        "proficiency": "native"
+      },
+      {
+        "language": "English",
+        "proficiency": "native"
+      }
     ],
-    "core_competencies": ["security-architecture", "zero-trust", "identity", "oauth", "rust", "threat-modeling", "compliance"],
+    "core_competencies": [
+      "security-architecture",
+      "zero-trust",
+      "identity",
+      "oauth",
+      "rust",
+      "threat-modeling",
+      "compliance"
+    ],
     "major_impact": [
       {
         "title": "Zero-trust migration for a federally regulated bank",
         "role": "Principal security architect",
         "summary": "Took 1,400 internal services off VPN-based trust and onto identity-aware proxies with short-lived workload credentials.",
-        "architecture": ["spiffe", "envoy", "oauth", "hsm"],
-        "metrics": ["Standing credentials eliminated", "Passed OSFI audit with zero findings"]
+        "architecture": [
+          "spiffe",
+          "envoy",
+          "oauth",
+          "hsm"
+        ],
+        "metrics": [
+          "Standing credentials eliminated",
+          "Passed OSFI audit with zero findings"
+        ]
       }
     ],
     "proof_of_work": [
-      { "title": "Threat-modelling playbook (open source)", "url": "https://github.com/example/threat-playbook", "type": "repository" },
-      { "title": "Talk: Zero trust without the buzzwords", "url": "https://example.com/talks/zero-trust", "type": "talk" }
+      {
+        "title": "Threat-modelling playbook (open source)",
+        "url": "https://github.com/example/threat-playbook",
+        "type": "repository"
+      },
+      {
+        "title": "Talk: Zero trust without the buzzwords",
+        "url": "https://example.com/talks/zero-trust",
+        "type": "talk"
+      }
     ],
     "vouches": [
-      { "vouched_by": "Sam Okoye", "vouched_by_github": "example-sokoye", "relationship": "client", "statement": "Liam led our zero-trust programme and left us with a team that can run it.", "date": "2026-06-11", "verification_url": "https://github.com/rest-of-us/hub-canada/pull/4" },
-      { "vouched_by": "Elena Petrova", "vouched_by_github": "example-epetrova", "relationship": "open_source_collaborator", "date": "2026-07-01" },
-      { "vouched_by": "Kenji Watanabe", "vouched_by_github": "example-kwatanabe", "relationship": "direct_report", "date": "2026-07-03" }
+      {
+        "vouched_by": "Sam Okoye",
+        "vouched_by_github": "example-sokoye",
+        "relationship": "client",
+        "statement": "Liam led our zero-trust programme and left us with a team that can run it.",
+        "date": "2026-06-11"
+      },
+      {
+        "vouched_by": "Elena Petrova",
+        "vouched_by_github": "example-epetrova",
+        "relationship": "open_source_collaborator",
+        "date": "2026-07-01"
+      },
+      {
+        "vouched_by": "Kenji Watanabe",
+        "vouched_by_github": "example-kwatanabe",
+        "relationship": "direct_report",
+        "date": "2026-07-03"
+      }
     ],
-    "contact": { "email": "liam@example.com", "website": "https://example.com" },
+    "contact": {
+      "website": "https://example.com"
+    },
+    "contact_methods": [
+      {
+        "type": "email_base64",
+        "value": "bGlhbUBleGFtcGxlLmNvbQ==",
+        "preferred": true
+      },
+      {
+        "type": "matrix",
+        "value": "QGxpYW06bWF0cml4Lm9yZw==",
+        "label": "Fastest reply"
+      }
+    ],
     "updated": "2026-09-20"
   },
   {
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "id": "demo-hana-kim",
-    "name": "Hana Kim",
+    "handle": "hk-builds",
     "headline": "Engineering director — mobile and frontend platforms for consumer products",
     "seniority": "director",
     "region": "apac",
-    "location": { "country": "AU", "city": "Melbourne" },
+    "location": {
+      "country": "AU",
+      "city": "Melbourne"
+    },
     "timezone": "UTC+10",
-    "work_preferences": ["fulltime_eor", "fulltime_local_entity"],
+    "work_preferences": [
+      "fulltime_eor",
+      "fulltime_local_entity"
+    ],
     "availability": "open_to_conversations",
-    "core_competencies": ["engineering-management", "react", "react-native", "typescript", "design-systems", "web-performance"],
+    "core_competencies": [
+      "engineering-management",
+      "react",
+      "react-native",
+      "typescript",
+      "design-systems",
+      "web-performance"
+    ],
     "major_impact": [
       {
         "title": "Unified web and mobile design system across four product lines",
         "role": "Director of engineering (45 engineers)",
         "summary": "Funded and led a shared component platform, so four previously separate apps now ship one consistent, accessible UI.",
-        "architecture": ["react", "react-native", "typescript"],
-        "metrics": ["UI defect rate down 60%", "WCAG 2.2 AA across all products"]
+        "architecture": [
+          "react",
+          "react-native",
+          "typescript"
+        ],
+        "metrics": [
+          "UI defect rate down 60%",
+          "WCAG 2.2 AA across all products"
+        ]
       }
     ],
     "proof_of_work": [
-      { "title": "Design system docs site", "url": "https://example.com/design-system", "type": "product" }
+      {
+        "title": "Design system docs site",
+        "url": "https://example.com/design-system",
+        "type": "product"
+      }
     ],
     "vouches": [
-      { "vouched_by": "Oliver Grant", "vouched_by_github": "example-ogrant", "relationship": "peer", "date": "2026-05-22" }
+      {
+        "vouched_by": "Oliver Grant",
+        "vouched_by_github": "example-ogrant",
+        "relationship": "peer",
+        "date": "2026-05-22"
+      }
     ],
-    "contact": { "email": "hana@example.com" },
+    "contact_methods": [
+      {
+        "type": "proton_alias",
+        "value": "aGstYnVpbGRzLnJlY3J1aXRpbmdAcGFzc21haWwubmV0",
+        "preferred": true
+      }
+    ],
     "updated": "2026-08-28"
   }
 ]

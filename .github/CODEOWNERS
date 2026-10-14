@@ -1,0 +1,9 @@
+# Changes to the rules, the code that enforces them, and the hub registry
+# need a maintainer's review. Enable "Require review from Code Owners" in the
+# branch protection rule for main to enforce this.
+/.github/              @rest-of-us
+/scripts/              @rest-of-us
+/profiles/schema.json  @rest-of-us
+/circles/schema.json   @rest-of-us
+/hubs.json             @rest-of-us
+/js/                   @rest-of-us
