@@ -156,6 +156,17 @@ A peer circle is a small group (4–8) of senior people between roles who meet w
 
 What's different here is that **matching is geographic first**. Most job-search advice and groups default to the US market. A circle in your own city shares your recruiters, salary bands, employment law and timezone, and can meet in person.
 
+### Rest of US and Never Search Alone
+
+[Never Search Alone](https://www.neversearchalone.org/) (NSA) is where the idea of searching together comes from. It's Phyl Terry's book, *Never Search Alone: The Job Seeker's Playbook*, and a volunteer community that matches job seekers into Job Search Councils and trains them in a structured weekly method, for free.
+
+Rest of US is a much smaller thing: an open-source tool for finding people near you. It puts self-organized circles on a map, matches by city and timezone first, and gives members a public place to vouch for each other and be found by recruiters.
+
+- **Start with NSA** if you want to be matched with peers by volunteers, want training, or want the full method. [Join a Job Search Council](https://www.neversearchalone.org/jsc), [read the book](https://www.neversearchalone.org/the-book), get the [free templates](https://www.neversearchalone.org/downloads), or [hear Phyl Terry explain it on Lenny's Podcast](https://www.neversearchalone.org/lenny).
+- **Use Rest of US** if you want people in your own city or job market, or you already run a council (NSA-style or not) and want people nearby to find it. [List it as a circle](https://rest-of-us.github.io/job-circles/start-circle.html).
+
+**Is Rest of US affiliated with Never Search Alone?** No. Rest of US is an independent open-source project. Never Search Alone is a pro-bono project of Collaborative Gain and hasn't endorsed this site. We link to NSA because its Job Search Councils inspired our circles. We don't use NSA's logo, and our circles aren't official Job Search Councils.
+
 **Finding a circle** ([circles.html](https://rest-of-us.github.io/job-circles/circles.html)): type your city or use your location. Results come in three tiers:
 
 1. **Meet in person:** in-person and hybrid circles within your chosen radius (10–200 km), ordered by open seats, then distance.
