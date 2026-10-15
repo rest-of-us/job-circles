@@ -756,7 +756,7 @@ const REQUIRED_STEPS = 13;  // rough count of required items, for the progress b
  * ------------------------------------------------------------------ */
 async function loadHubs() {
   try {
-    const reg = (await Hubs.cachedFetch('./hubs.json')).data;
+    const reg = (await Hubs.cachedFetch('./hubs.json', { force: true })).data;
     state.hubs = (reg.hubs || []).filter((h) => h.submit && !['disabled', 'demo', 'planned'].includes(h.status));
   } catch { state.hubs = []; }
 

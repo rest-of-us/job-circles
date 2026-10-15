@@ -166,7 +166,9 @@ window.Hubs = (() => {
       const record = { url: reg.url, source: reg.source, name: reg.name || '', ok: false, hubCount: 0 };
       registries.push(record);
       try {
-        const { data, fetchedAt, stale, error } = await cachedFetch(reg.url, { force });
+        // This site's own registry is small and changes when hubs are added, so always
+        // re-fetch it (the cached copy is still used if the network fails).
+        const { data, fetchedAt, stale, error } = await cachedFetch(reg.url, { force: force || reg.source === 'default' });
         if (!data || !Array.isArray(data.hubs)) throw new Error('not a hubs.json registry');
         Object.assign(record, { ok: true, fetchedAt, stale, error, name: record.name || data.name || hostOf(reg.url) });
         if (reg.source === 'default') config = data;
