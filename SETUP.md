@@ -109,7 +109,7 @@ The main repository runs a **daily health check** ([`aggregate-hubs.yml`](.githu
 
 - fetches each feed and validates every profile against the schema;
 - flags a hub as **error** if the feed returns an HTTP error, times out, or isn't a list of profiles;
-- flags a hub as **stale** if nothing in it has changed for **90 days**. It uses the newest profile `updated` or vouch `date`, falling back to the feed's `Last-Modified` header;
+- flags a hub as **stale** if it has profiles but nothing in it has changed for **90 days**. It uses the newest profile `updated` or vouch `date`, falling back to the feed's `Last-Modified` header. A hub with no profiles yet is never flagged stale, so a new circle has time to fill up;
 - writes the results, with every valid profile, to [`aggregated-directory.json`](aggregated-directory.json). The site shows this snapshot on first load and keeps showing it for hubs that are down;
 - keeps one open issue labelled **hub-health** that lists the hubs needing attention, and closes it when they're healthy again.
 

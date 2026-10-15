@@ -9,8 +9,10 @@
 //     profiles/schema.json, keeping only the valid ones;
 //   - works out when the hub last changed: the newest profile `updated` date,
 //     falling back to the last commit (local feeds) or Last-Modified (remote);
-//   - marks it "ok", "stale" (an active hub with no change in STALE_DAYS,
-//     default 90) or "error" (HTTP error, timeout, bad JSON or not a feed).
+//   - marks it "ok", "stale" (an active hub with profiles but no change in
+//     STALE_DAYS, default 90) or "error" (HTTP error, timeout, bad JSON or
+//     not a feed). Empty hubs are never stale: they're waiting for members,
+//     not abandoned.
 // Planned and disabled hubs are listed but not fetched.
 //
 // The output is only rewritten when something other than the timestamp
@@ -147,8 +149,9 @@ async function checkHub(hub) {
     record.profile_count = record.profiles.length;
     const lastActive = newest || res.lastModified;
     record.last_active = isoDate(lastActive);
-    // Sample data never changes, so only live hubs can go stale.
-    const stale = hub.status === 'active' && lastActive && now - lastActive > STALE_DAYS * DAY_MS;
+    // Sample data never changes, and an empty hub is waiting for its first
+    // members rather than abandoned, so only live hubs with profiles go stale.
+    const stale = hub.status === 'active' && record.profiles.length > 0 && lastActive && now - lastActive > STALE_DAYS * DAY_MS;
     record.health = stale ? 'stale' : 'ok';
     if (stale) record.error = `no updates since ${record.last_active}`;
   } catch (err) {
