@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="js/geo.js"></script>
+  <script src="js/illustration.js" defer></script>
   <script src="js/jobflo.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -389,12 +390,15 @@ function card(x) {
 }
 
 function startCta(origin, radius) {
-  return `<div class="card mb-3 border-dashed">
+  return `<div class="card mb-3 border-dashed sm:flex sm:items-center sm:gap-6">
+    <undraw-illustration name="team-up" class="mx-auto mb-4 w-28 shrink-0 sm:order-last sm:mx-0 sm:mb-0 sm:w-32" style="aspect-ratio: 525 / 531"></undraw-illustration>
+    <div class="min-w-0 flex-1">
     <p class="font-semibold">No in-person circle within ${radius} km of ${esc(origin.label)} yet</p>
     <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Start one and be the organizer. The next senior person who searches nearby will find it. Until then, the online circles below cover your region.</p>
     <div class="mt-3 flex flex-wrap gap-2">
       <a href="start-circle.html" data-start class="btn-primary">Start a circle${origin.city ? ' in ' + esc(origin.city) : ''}</a>
       ${radius < 200 ? `<button type="button" data-widen class="btn">Search within ${radius < 50 ? 50 : radius < 100 ? 100 : 200} km</button>` : ''}
+    </div>
     </div>
   </div>`;
 }
@@ -417,7 +421,11 @@ function render() {
     $('#summary').textContent = `${n} in-person circle${n === 1 ? '' : 's'} near ${state.origin.label}, ${r} online in your region.`;
   } else {
     const list = visible().map((c) => ({ c })).sort((a, b) => String(b.c.updated || b.c.created).localeCompare(String(a.c.updated || a.c.created)));
-    out.push(list.length ? list.map(card).join('') : '<p class="card text-sm">No circles match these filters yet.</p>');
+    out.push(list.length ? list.map(card).join('') : `<div class="card border-dashed py-8 text-center">
+      <undraw-illustration name="empty" class="mx-auto mb-4 w-36" style="aspect-ratio: 863 / 645"></undraw-illustration>
+      <p class="font-semibold">No circles match these filters yet.</p>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Show full and closed circles, or <a href="start-circle.html" class="font-medium text-brand-600 hover:underline dark:text-brand-400">start one</a>.</p>
+    </div>`);
     shown = list;
     $('#summary').textContent = `${list.length} circle${list.length === 1 ? '' : 's'}. Enter your city to see which ones are near you.`;
   }

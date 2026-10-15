@@ -72,6 +72,7 @@ This project takes a different approach:
 | [`hubs.json`](hubs.json) | Registry of regional hubs and their feed URLs. |
 | [`hubs.schema.json`](hubs.schema.json) | JSON Schema for `hubs.json`. Registry changes are checked against it. |
 | [`aggregated-directory.json`](aggregated-directory.json) | Daily snapshot of every hub, with health status, built by `aggregate-hubs.yml`. The site shows it on first load and falls back to it when a hub is down. |
+| [`illustrations/`](illustrations) | [unDraw](https://undraw.co) illustrations recoloured to the brand indigo, shown in empty states and on the 404 page by `js/illustration.js`, which also adapts them to dark mode. Add more with `node scripts/fetch-undraw.mjs "<query>"`. |
 | [`hub-template/`](hub-template) | Starter repository for a circle hub of up to eight members. See [SETUP.md](SETUP.md). |
 | [`profiles/schema.json`](profiles/schema.json) | JSON Schema (draft 2020-12) that every candidate profile must pass. |
 | [`join.html`](join.html) | Profile builder: a form that checks entries as you type and opens a pre-filled GitHub pull request. |
