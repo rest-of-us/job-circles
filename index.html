@@ -228,7 +228,7 @@
             <ol class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-400">
               <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">1</span><span><strong class="text-slate-900 dark:text-slate-100">Fill in a short form</strong> about what you've built and the difference it made. There are no questions about dates or age.</span></li>
               <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">2</span><span><strong class="text-slate-900 dark:text-slate-100">Click Submit.</strong> Your profile opens on GitHub, ready to send. You click two buttons to send it.</span></li>
-              <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">3</span><span><strong class="text-slate-900 dark:text-slate-100">A volunteer checks it</strong> and approves it. Your profile then shows up in the search on this page.</span></li>
+              <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">3</span><span><strong class="text-slate-900 dark:text-slate-100">Your hub's volunteers check it.</strong> Each regional hub has its own volunteer reviewers, who approve new profiles. Your profile then shows up in the search on this page.</span></li>
               <li class="flex gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">4</span><span><strong class="text-slate-900 dark:text-slate-100">Recruiters contact you directly</strong> using the contact details you chose to share.</span></li>
             </ol>
             <a href="join.html" class="mt-5 inline-block text-sm font-semibold text-brand-600 hover:underline dark:text-brand-400">Add your profile →</a>
@@ -786,6 +786,7 @@ function renderHubList() {
       </div>
       <p class="mt-1 flex-1 text-sm text-slate-600 dark:text-slate-400">${esc(h.description || '')}</p>
       <p class="mt-3 text-xs font-medium ${statusClass}">${statusText}</p>
+      ${reviewersHtml(h)}
       <div class="mt-3 flex flex-wrap gap-2 text-xs">
         ${feed ? `<a href="${esc(feed)}" class="rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700" target="_blank" rel="noopener">Raw JSON feed</a>` : ''}
         ${feed ? `<button type="button" data-copy="${esc(feed)}" data-copy-msg="Feed URL copied" class="rounded-lg bg-slate-100 px-2.5 py-1.5 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">Copy URL</button>` : ''}
@@ -793,6 +794,19 @@ function renderHubList() {
       </div>
     </article>`;
   }).join('');
+}
+
+// Each hub's own volunteers review its profiles. Hubs list them in hubs.json as `maintainers`.
+function reviewersHtml(h) {
+  if (!Array.isArray(h.maintainers) || h.status === 'demo') return '';
+  const handles = h.maintainers.filter((m) => /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/.test(m));
+  if (handles.length) {
+    return `<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Reviewed by ${handles.map((m) => `<a href="https://github.com/${esc(m)}" class="hover:underline" target="_blank" rel="noopener">@${esc(m)}</a>`).join(', ')}</p>`;
+  }
+  const title = `Volunteer to review the ${h.name} hub`;
+  const body = `I'd like to help review new profiles for the ${h.name} hub.\n\nGitHub username: @\nWhere I'm based / my connection to the region:\n`;
+  const url = `https://github.com/rest-of-us/job-circles/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  return `<p class="mt-1 text-xs text-amber-700 dark:text-amber-400">Needs volunteer reviewers. New profiles wait until someone reviews them. <a href="${esc(url)}" class="font-medium underline-offset-2 hover:underline" target="_blank" rel="noopener">Volunteer →</a></p>`;
 }
 
 function ago(t) {

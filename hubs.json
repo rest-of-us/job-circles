@@ -23,6 +23,7 @@
       "profiles_url": "profiles/community.json",
       "timezones": [],
       "status": "active",
+      "maintainers": [],
       "always_open": true,
       "submit": {
         "repository": "rest-of-us/job-circles",
@@ -137,6 +138,7 @@
         "UTC+4"
       ],
       "status": "active",
+      "maintainers": [],
       "submit": {
         "repository": "rest-of-us/job-circles",
         "branch": "main",
@@ -157,6 +159,7 @@
         "UTC+4"
       ],
       "status": "active",
+      "maintainers": [],
       "submit": {
         "repository": "rest-of-us/job-circles",
         "branch": "main",
@@ -180,6 +183,7 @@
         "UTC-4"
       ],
       "status": "active",
+      "maintainers": [],
       "submit": {
         "repository": "rest-of-us/job-circles",
         "branch": "main",

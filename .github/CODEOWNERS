@@ -7,3 +7,12 @@
 /circles/schema.json   @rest-of-us
 /hubs.json             @rest-of-us
 /js/                   @rest-of-us
+
+# Profiles in the hubs hosted here are reviewed by each hub's own volunteers,
+# not the repo owner. When someone volunteers, add their GitHub username to the
+# hub's line below and to its "maintainers" list in hubs.json. Lines stay
+# commented out until a hub has at least one reviewer.
+# /profiles/community/    @username
+# /profiles/us/           @username
+# /profiles/africa/       @username
+# /profiles/middle-east/  @username

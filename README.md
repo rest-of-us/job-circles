@@ -24,7 +24,7 @@ This project takes a different approach:
 
 1. **Fill in a short form** in the [profile builder](https://rest-of-us.github.io/job-circles/join.html) about what you've built and the difference it made. There are no questions about dates or age.
 2. **Click Submit.** Your profile opens on GitHub, ready to send. You click two buttons to send it.
-3. **A volunteer checks it** and approves it. Your profile then shows up in the search on the [website](https://rest-of-us.github.io/job-circles).
+3. **Your hub's volunteers check it.** Each regional hub has its own volunteer reviewers, who approve new profiles. Your profile then shows up in the search on the [website](https://rest-of-us.github.io/job-circles).
 4. **Recruiters contact you directly** using the contact details you chose to share.
 
 **If you're vouching for a colleague**
@@ -207,6 +207,20 @@ Anyone can start a hub for a region that doesn't have one, or a region-specific 
      "status": "active"
    }
    ```
+
+### Reviewing profiles for a hub hosted here
+
+The Community, United States, Africa and Middle East (Western Asia) hubs live in this repository, and each one is reviewed by its own volunteers, not by the project's creator. Each hub's card on the site lists its reviewers, or shows **Volunteer →** if it has none yet.
+
+**To volunteer,** click **Volunteer →** on the hub's card, or open an issue saying which hub you'd like to review. The repository owner then:
+
+1. adds you as a collaborator on this repository;
+2. adds your GitHub username to that hub's `maintainers` list in [`hubs.json`](hubs.json), so the site shows you as a reviewer;
+3. adds you to that hub's line in [`.github/CODEOWNERS`](.github/CODEOWNERS), so GitHub asks you to review pull requests that change its folder.
+
+For CODEOWNERS to be enforced, turn on *Settings → Branches → Branch protection rule for `main` → Require a pull request before merging → Require review from Code Owners*.
+
+**Reviewing a profile:** the automated checks have already confirmed that the file matches the schema, that the person opening the PR owns the profile, and that the region matches the hub's folder. Your job is the human part: check that the profile is a real person describing real work, and isn't spam, offensive or someone else's details. If it is, approve and merge. If not, leave a comment or close the PR. You can remove a profile later by deleting its file in a PR.
 
 ### Feed format
 
