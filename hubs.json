@@ -45,7 +45,7 @@
       "id": "uk",
       "name": "UK & Ireland",
       "region": "uk",
-      "description": "Senior engineers, architects and technical leaders based in the United Kingdom and Ireland.",
+      "description": "Senior engineers, designers, product managers and tech leaders based in the United Kingdom and Ireland.",
       "repository": "https://github.com/rest-of-us/hub-uk",
       "profiles_url": "https://rest-of-us.github.io/hub-uk/profiles.json",
       "timezones": [
@@ -85,7 +85,7 @@
       "id": "latam",
       "name": "Latin America",
       "region": "latam",
-      "description": "Senior engineers across Mexico, Central and South America, with strong overlap with North American hours.",
+      "description": "Senior tech talent across Mexico, Central and South America, with strong overlap with North American hours.",
       "repository": "https://github.com/rest-of-us/hub-latam",
       "profiles_url": "https://rest-of-us.github.io/hub-latam/profiles.json",
       "timezones": [

@@ -27,7 +27,7 @@ gh repo create hub-my-circle --public --source . --push
 
 No terminal? Download the [repository ZIP](https://github.com/rest-of-us/job-circles/archive/refs/heads/main.zip), create an empty public repository on GitHub, and upload the contents of the `hub-template` folder with **Add file → Upload files**. Upload the hidden `.github` folder too. If your file browser hides it, show hidden files (on a Mac, press `Cmd+Shift+.`).
 
-Name the repository `hub-<something>`, for example `hub-lisbon-platform-eng`. It must be **public**, so other sites can read the feed.
+Name the repository `hub-<something>`, for example `hub-lisbon-product-eng`. It must be **public**, so other sites can read the feed.
 
 ## 2. Fill in hub.json
 
@@ -35,17 +35,17 @@ Name the repository `hub-<something>`, for example `hub-lisbon-platform-eng`. It
 
 ```json
 {
-  "id": "lisbon-platform-eng",
-  "name": "Lisbon Platform Engineers",
+  "id": "lisbon-product-eng",
+  "name": "Lisbon Product & Engineering",
   "region": "europe",
-  "description": "Eight senior platform and infrastructure engineers in and around Lisbon.",
-  "repository": "https://github.com/your-name/hub-lisbon-platform-eng",
-  "profiles_url": "https://your-name.github.io/hub-lisbon-platform-eng/profiles.json",
+  "description": "Eight senior engineers, designers and product managers in and around Lisbon.",
+  "repository": "https://github.com/your-name/hub-lisbon-product-eng",
+  "profiles_url": "https://your-name.github.io/hub-lisbon-product-eng/profiles.json",
   "timezones": ["UTC", "UTC+1"],
   "status": "active",
   "maintainers": ["your-name", "a-co-maintainer"],
   "max_members": 8,
-  "submit": { "repository": "your-name/hub-lisbon-platform-eng", "branch": "main", "path": "profiles" }
+  "submit": { "repository": "your-name/hub-lisbon-product-eng", "branch": "main", "path": "profiles" }
 }
 ```
 

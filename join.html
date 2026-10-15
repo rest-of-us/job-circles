@@ -76,7 +76,7 @@
       <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Add your profile</h1>
       <p class="mt-3 text-slate-600 dark:text-slate-300">
         Fill in the form and we'll build your profile file as you type. When it's ready, one click opens GitHub with the file already filled in, and you propose it there.
-        There are no dates or "years of experience" fields here. You're judged on what you built, not when.
+        There are no dates or "years of experience" fields here. You're judged on the work you did, not when.
       </p>
       <ol class="mt-6 grid gap-3 text-sm sm:grid-cols-3">
         <li class="flex gap-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">1</span><span>Fill in the form. Your draft saves in this browser automatically.</span></li>
@@ -126,12 +126,12 @@
             </div>
             <div class="sm:col-span-2">
               <label for="headline" class="label req">Headline</label>
-              <input id="headline" class="field" maxlength="140" placeholder="Distributed systems architect — payments and ledger platforms at national scale">
+              <input id="headline" class="field" maxlength="140" placeholder="e.g. Staff product designer — design systems for complex B2B tools">
               <p class="hint"><span data-count="headline">0</span>/140 · one line on what you do best.</p>
             </div>
             <div class="sm:col-span-2">
               <label for="summary" class="label">Summary</label>
-              <textarea id="summary" class="field" rows="4" maxlength="1200" placeholder="A few sentences on the problems you like solving."></textarea>
+              <textarea id="summary" class="field" rows="4" maxlength="1200" placeholder="A few sentences on the problems you like solving and the kind of team you do your best work in."></textarea>
               <p class="hint"><span data-count="summary">0</span>/1200 · plain text.</p>
             </div>
           </div>
@@ -191,17 +191,17 @@
           <p class="hint">3–20 skills. Press Enter or comma after each. These power search and the skill filters.</p>
           <div id="skillsBox" class="field mt-3 flex min-h-[2.75rem] flex-wrap items-center gap-1.5">
             <div id="skillChips" class="contents"></div>
-            <input id="skillInput" class="min-w-[8rem] flex-1 border-0 bg-transparent p-1 text-sm focus:outline-none focus:ring-0" placeholder="e.g. kubernetes, event-sourcing, go" aria-label="Add a skill" autocapitalize="off" spellcheck="false">
+            <input id="skillInput" class="min-w-[8rem] flex-1 border-0 bg-transparent p-1 text-sm focus:outline-none focus:ring-0" placeholder="e.g. product-strategy, user-research, kubernetes" aria-label="Add a skill" autocapitalize="off" spellcheck="false">
           </div>
-          <p class="hint">Saved in lowercase with hyphens, e.g. “Event Sourcing” becomes <code>event-sourcing</code>.</p>
+          <p class="hint">Saved in lowercase with hyphens, e.g. “User Research” becomes <code>user-research</code>.</p>
         </section>
 
         <!-- Impact -->
         <section class="card" aria-labelledby="s-impact">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h2 id="s-impact" class="section-title req">Systems &amp; impact</h2>
-              <p class="hint">1–8 things you built or led, and what changed because of them. No dates.</p>
+              <h2 id="s-impact" class="section-title req">Work &amp; impact</h2>
+              <p class="hint">1–8 things you designed, built, shipped or led, and what changed because of them. No dates.</p>
             </div>
             <button type="button" class="btn shrink-0" data-add="impact">+ Add</button>
           </div>
@@ -213,7 +213,7 @@
           <div class="flex items-start justify-between gap-4">
             <div>
               <h2 id="s-pow" class="section-title">Proof of work</h2>
-              <p class="hint">Public links: repos, talks, papers, write-ups, products.</p>
+              <p class="hint">Public links: portfolio, case studies, talks, writing, products, repos.</p>
             </div>
             <button type="button" class="btn shrink-0" data-add="pow">+ Add</button>
           </div>
@@ -337,7 +337,7 @@
 const DRAFT_KEY = 'trou-draft';
 const MAX_PREFILL_URL = 7500;   // GitHub rejects very long URLs; past this we use the clipboard.
 
-const SENIORITY = { senior: 'Senior', staff: 'Staff', principal: 'Principal', distinguished: 'Distinguished', director: 'Director', vp: 'VP', cto: 'CTO' };
+const SENIORITY = { senior: 'Senior', staff: 'Staff', principal: 'Principal', distinguished: 'Distinguished', director: 'Director', vp: 'VP', cto: 'C-level' };
 const REGIONS = { uk: 'UK & Ireland', europe: 'Europe', canada: 'Canada', us: 'United States', latam: 'Latin America', apac: 'Asia-Pacific', africa: 'Africa', 'middle-east': 'Middle East (Western Asia)' };
 const PREFS = {
   contract_b2b: ['Contract (B2B)', 'You invoice through your own company.'],
@@ -451,11 +451,11 @@ function addImpact(d = {}) {
       ${removeBtn}
       <div class="sm:col-span-2 pr-8">
         <label class="label req">What did you build or change?</label>
-        <input data-k="title" class="field" maxlength="120" placeholder="Rebuilt the settlement ledger for a national payments scheme" value="${esc(d.title)}">
+        <input data-k="title" class="field" maxlength="120" placeholder="e.g. Redesigned onboarding for a national payments app" value="${esc(d.title)}">
       </div>
       <div>
         <label class="label">Your role</label>
-        <input data-k="role" class="field" maxlength="80" placeholder="Lead architect" value="${esc(d.role)}">
+        <input data-k="role" class="field" maxlength="80" placeholder="e.g. Design lead, Product lead, Lead architect" value="${esc(d.role)}">
       </div>
       <div>
         <label class="label">Organization</label>
@@ -467,11 +467,11 @@ function addImpact(d = {}) {
       </div>
       <div>
         <label class="label">Results</label>
-        <textarea data-k="metrics" class="field" rows="3" placeholder="One per line, e.g.&#10;p99 latency 1.2s → 180ms&#10;Cloud spend down 31%">${esc((d.metrics || []).join('\n'))}</textarea>
+        <textarea data-k="metrics" class="field" rows="3" placeholder="One per line, e.g.&#10;Sign-up completion up 24%&#10;Support tickets down a third">${esc((d.metrics || []).join('\n'))}</textarea>
       </div>
       <div>
-        <label class="label">Technologies &amp; patterns</label>
-        <textarea data-k="architecture" class="field" rows="3" placeholder="Comma-separated, e.g. kafka, event-sourcing, go">${esc((d.architecture || []).join(', '))}</textarea>
+        <label class="label">Tools, methods &amp; technologies</label>
+        <textarea data-k="architecture" class="field" rows="3" placeholder="Comma-separated, e.g. figma, user-research, kafka">${esc((d.architecture || []).join(', '))}</textarea>
       </div>
     </div>`);
   if (!d.title && n > 1) $$('#impacts .row').at(-1).querySelector('input').focus();
@@ -698,9 +698,9 @@ function validate(p) {
     const row = impactRows[i];
     if (!m.title) err(row.querySelector('[data-k="title"]'), `Impact ${i + 1}: add a title`);
     if (!m.summary) err(row.querySelector('[data-k="summary"]'), `Impact ${i + 1}: describe what you did`);
-    if ((m.architecture || []).length > 12) err(row.querySelector('[data-k="architecture"]'), `Impact ${i + 1}: up to 12 technologies`);
+    if ((m.architecture || []).length > 12) err(row.querySelector('[data-k="architecture"]'), `Impact ${i + 1}: up to 12 tools or technologies`);
     if ((m.metrics || []).length > 6) err(row.querySelector('[data-k="metrics"]'), `Impact ${i + 1}: up to 6 results`);
-    if ((m.architecture || []).some((a) => a.length > 40)) err(row.querySelector('[data-k="architecture"]'), `Impact ${i + 1}: keep each technology under 40 characters`);
+    if ((m.architecture || []).some((a) => a.length > 40)) err(row.querySelector('[data-k="architecture"]'), `Impact ${i + 1}: keep each tool or technology under 40 characters`);
     if ((m.metrics || []).some((a) => a.length > 140)) err(row.querySelector('[data-k="metrics"]'), `Impact ${i + 1}: keep each result under 140 characters`);
   });
 

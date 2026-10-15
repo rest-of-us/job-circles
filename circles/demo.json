@@ -2,11 +2,12 @@
   {
     "schema_version": "1.0",
     "id": "demo-manchester-senior-engineers",
-    "name": "Manchester Senior Engineers",
-    "description": "Staff-and-above engineers between roles, meeting in a city-centre café. We share leads in the North West market, run mock system-design interviews and keep each other accountable week to week.",
+    "name": "Manchester Senior Tech",
+    "description": "Senior engineers, designers and product people between roles, meeting in a city-centre café. We share leads in the North West market, run mock interviews and portfolio reviews, and keep each other accountable week to week.",
     "focus": [
       "engineering",
-      "leadership"
+      "design",
+      "product"
     ],
     "languages": [
       "English"
@@ -133,10 +134,12 @@
   {
     "schema_version": "1.0",
     "id": "demo-brasil-engenharia-remota",
-    "name": "Engenharia Sênior Brasil (remoto)",
-    "description": "Senior engineers across Brazil looking for contract and EOR roles abroad. Online, in Portuguese, with English interview practice every other week.",
+    "name": "Tecnologia Sênior Brasil (remoto)",
+    "description": "Senior engineers, designers and product managers across Brazil looking for contract and EOR roles abroad. Online, in Portuguese, with English interview practice every other week.",
     "focus": [
-      "engineering"
+      "engineering",
+      "design",
+      "product"
     ],
     "languages": [
       "Portuguese",
@@ -265,9 +268,11 @@
     "schema_version": "1.0",
     "id": "demo-lagos-tech-leads",
     "name": "Lagos Tech Leads",
-    "description": "Tech leads and senior engineers in Lagos working towards remote roles with UK and EU companies. Hybrid, with monthly in-person sessions in Yaba.",
+    "description": "Tech leads, senior engineers, designers and product managers in Lagos working towards remote roles with UK and EU companies. Hybrid, with monthly in-person sessions in Yaba.",
     "focus": [
       "engineering",
+      "product",
+      "design",
       "leadership"
     ],
     "languages": [

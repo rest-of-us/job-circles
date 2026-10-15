@@ -4,11 +4,11 @@
 
 🌍 **Live site:** https://rest-of-us.github.io/job-circles
 
-The Rest of US is an open-source, decentralized directory of senior tech talent in the United States and around the world. Experienced engineers, architects and technical leaders in the UK, Canada, the US, Latin America, Asia-Pacific and beyond are routinely screened out by keyword-matching ATS tools, location checks and age proxies such as graduation years, before a human reads their CV.
+The Rest of US is an open-source, decentralized directory of senior tech talent in the United States and around the world. Experienced engineers, designers, product managers, researchers and tech leaders in the UK, Canada, the US, Latin America, Asia-Pacific and beyond are routinely screened out by keyword-matching ATS tools, location checks and age proxies such as graduation years, before a human reads their CV.
 
 This project takes a different approach:
 
-- **Impact, not chronology.** Profiles describe systems built and outcomes delivered. The [schema](profiles/schema.json) has no fields for birth dates, graduation years, employment dates or "years of experience", and rejects any field it doesn't define.
+- **Impact, not chronology.** Profiles describe the work people designed, built, shipped or led, and what it changed. The [schema](profiles/schema.json) has no fields for birth dates, graduation years, employment dates or "years of experience", and rejects any field it doesn't define.
 - **Peer vouches in public.** Colleagues vouch for each other through pull requests from their own GitHub accounts, so every endorsement has a traceable author.
 - **No middleman.** Recruiters contact candidates directly. No accounts, no fees.
 - **Federated.** Regional hubs are independent GitHub repositories run by their own maintainers. This site is just a search UI over their public JSON feeds.
@@ -22,7 +22,7 @@ This project takes a different approach:
 
 **If you're looking for work**
 
-1. **Fill in a short form** in the [profile builder](https://rest-of-us.github.io/job-circles/join.html) about what you've built and the difference it made. There are no questions about dates or age.
+1. **Fill in a short form** in the [profile builder](https://rest-of-us.github.io/job-circles/join.html) about the work you've led and the difference it made. There are no questions about dates or age.
 2. **Click Submit.** Your profile opens on GitHub, ready to send. You click two buttons to send it.
 3. **Your hub's volunteers check it.** Each regional hub has its own volunteer reviewers, who approve new profiles. Your profile then shows up in the search on the [website](https://rest-of-us.github.io/job-circles).
 4. **Recruiters contact you directly** using the contact details you chose to share.
@@ -42,7 +42,7 @@ This project takes a different approach:
 ### Common questions
 
 - **What is GitHub, and why do I need it?** GitHub is a free website for storing and sharing files, used by most software teams. Profiles live there instead of in our own database, so no single company owns or controls them. You'll need a free GitHub account to add a profile or a vouch. Searching doesn't need one.
-- **Why no dates or years of experience?** Dates are how automated hiring filters guess someone's age and screen them out. Here you're judged on what you built and what changed because of it.
+- **Why no dates or years of experience?** Dates are how automated hiring filters guess someone's age and screen them out. Here you're judged on the work you did and what changed because of it.
 - **Who can see my profile?** Everyone. Your profile is public, so only include what you're happy to share. You can use a nickname instead of your real name. Your contact details are scrambled so automated bots can't easily collect them, but anyone who clicks **Reveal contact** can read them.
 - **Who runs it?** Volunteers. Profiles are grouped into regional hubs (UK, Canada, the US and so on), each looked after by its own maintainers. The website searches all of them at once. You can change or remove your profile at any time.
 
@@ -94,7 +94,7 @@ This project takes a different approach:
 
 1. **Find your hub** in [`hubs.json`](hubs.json) or under [Hubs & feeds](https://rest-of-us.github.io/job-circles/#hubs) on the site. The United States, Africa and Middle East (Western Asia) hubs are folders in this repository: [`profiles/us/`](profiles/us), [`profiles/africa/`](profiles/africa) and [`profiles/middle-east/`](profiles/middle-east). If your region has no hub yet, use [`profiles/community/`](profiles/community).
 2. **Fork the hub repository** and create `profiles/<your-github-handle>.json`. Start from one of the entries in [`profiles/demo.json`](profiles/demo.json).
-3. **Write about impact.** Fill in `major_impact` with the systems you designed and what changed because of them: scale, latency, cost, reliability, team growth. Leave out dates; the schema rejects them.
+3. **Write about impact.** Fill in `major_impact` with the work you designed, built, shipped or led and what changed because of it: adoption, conversion, revenue, cost, reliability, team growth. Leave out dates; the schema rejects them.
 4. **Validate locally** (optional; CI does this too):
    ```bash
    npx -p ajv-cli -p ajv-formats ajv validate --spec=draft2020 -c ajv-formats \
@@ -120,7 +120,7 @@ A vouch is a short, signed statement from someone who worked with you.
      "vouched_by": "Priya Shah",
      "vouched_by_github": "priyashah",
      "relationship": "peer",
-     "statement": "Led the ledger migration I worked on; the most careful engineer I've shipped with.",
+     "statement": "Led the ledger migration I worked on; the most careful person I've shipped with.",
      "date": "2026-10-14"
    }
    ```
@@ -232,7 +232,7 @@ Hub `status` is one of `active`, `planned` (listed as "Coming soon" and not fetc
 
 Go to **https://rest-of-us.github.io/job-circles** and:
 
-- search across skills, systems, roles and locations (fuzzy matching, so `kafka` finds `event streaming with Kafka`);
+- search across skills, tools, roles and locations (fuzzy matching, so `research` finds `user-research` and `kafka` finds `event streaming with Kafka`);
 - filter by **skill tags**, **timezone range** (with Americas / EMEA / APAC overlap presets), **work preference** (B2B contract, full-time via EOR, …), **seniority** and **peer-vouched** status;
 - click **Reveal contact** to decode a candidate's private contact methods (email, Proton alias, Matrix, Signal) in your browser, or use their public booking link or LinkedIn;
 - click **JSON** on a card to download that profile. To save your filtered shortlist, use **Export CSV** (includes decoded contacts, for your own tracker), **JSON** (profiles as published), or **Atom feed** (`feed.xml`, for feed readers and ATS importers; no contact details, entries link back to each profile);
