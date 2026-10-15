@@ -1,6 +1,6 @@
 {
   "directory_version": "1.0",
-  "generated": "2026-10-15T19:49:03.259Z",
+  "generated": "2026-10-15T21:18:48.523Z",
   "registry": "The Rest of US",
   "stale_after_days": 90,
   "hubs": [
@@ -148,8 +148,8 @@
           "id": "demo-mateo-ferreira",
           "name": "Mateo Ferreira",
           "pronouns": "he/him",
-          "headline": "Staff platform engineer — Kubernetes, developer experience and cloud cost",
-          "summary": "I build internal platforms that product teams actually want to use, and keep the cloud bill honest along the way.",
+          "headline": "Staff product designer — design systems and complex B2B workflows",
+          "summary": "I design the tools people use all day at work, and the design systems that let teams ship them consistently.",
           "seniority": "staff",
           "region": "latam",
           "location": {
@@ -176,42 +176,42 @@
             }
           ],
           "core_competencies": [
-            "kubernetes",
-            "platform-engineering",
-            "terraform",
-            "aws",
-            "go",
-            "finops",
-            "observability"
+            "product-design",
+            "design-systems",
+            "interaction-design",
+            "user-research",
+            "prototyping",
+            "figma",
+            "accessibility"
           ],
           "major_impact": [
             {
-              "title": "Internal developer platform for 300 engineers",
-              "role": "Tech lead (team of 6)",
+              "title": "One design system for 14 product teams",
+              "role": "Design lead (team of 4)",
               "organization": "Latin American e-commerce marketplace",
-              "summary": "Designed a golden-path platform on EKS with templated services, preview environments and built-in observability.",
+              "summary": "Built a shared component library and design language with engineering, replacing five diverging UI kits and the review bottleneck that came with them.",
               "architecture": [
-                "kubernetes",
-                "argo-cd",
-                "terraform",
-                "opentelemetry"
+                "figma",
+                "design-tokens",
+                "storybook",
+                "wcag-2.2"
               ],
               "metrics": [
-                "New service to production: 2 weeks → 40 minutes",
-                "Cloud spend down 31%"
+                "New screens designed and shipped 2× faster",
+                "Accessibility issues down 70%"
               ]
             }
           ],
           "proof_of_work": [
             {
-              "title": "Contributions to Karpenter",
-              "url": "https://github.com/example/karpenter",
-              "type": "open_source_contribution"
+              "title": "Portfolio: B2B workflow redesigns",
+              "url": "https://example.com/portfolio",
+              "type": "case_study"
             },
             {
-              "title": "Write-up: Cutting EKS costs by a third",
-              "url": "https://example.com/blog/eks-costs",
-              "type": "case_study"
+              "title": "Talk: Design tokens without tears",
+              "url": "https://example.com/talks/design-tokens",
+              "type": "talk"
             }
           ],
           "vouches": [
@@ -219,7 +219,7 @@
               "vouched_by": "Lucía Gómez",
               "vouched_by_github": "example-lgomez",
               "relationship": "manager",
-              "statement": "Mateo's platform work changed how our whole engineering org ships.",
+              "statement": "Mateo's design system changed how our whole product org ships.",
               "date": "2026-07-19"
             }
           ],
@@ -321,8 +321,8 @@
           "id": "demo-liam-tremblay",
           "name": "Liam Tremblay",
           "pronouns": "they/them",
-          "headline": "Security architect — zero-trust networks and identity for regulated industries",
-          "seniority": "distinguished",
+          "headline": "Principal product manager — identity and compliance products for regulated industries",
+          "seniority": "principal",
           "region": "canada",
           "location": {
             "country": "CA",
@@ -346,40 +346,40 @@
             }
           ],
           "core_competencies": [
-            "security-architecture",
-            "zero-trust",
+            "product-management",
+            "product-strategy",
+            "product-discovery",
+            "b2b-saas",
             "identity",
-            "oauth",
-            "rust",
-            "threat-modeling",
-            "compliance"
+            "compliance",
+            "fintech"
           ],
           "major_impact": [
             {
-              "title": "Zero-trust migration for a federally regulated bank",
-              "role": "Principal security architect",
-              "summary": "Took 1,400 internal services off VPN-based trust and onto identity-aware proxies with short-lived workload credentials.",
+              "title": "Self-serve identity verification for a federally regulated bank",
+              "role": "Group product manager (3 squads)",
+              "summary": "Took account opening from a branch visit to a five-minute mobile flow, working with risk, legal, design and engineering to meet regulator requirements from day one.",
               "architecture": [
-                "spiffe",
-                "envoy",
-                "oauth",
-                "hsm"
+                "customer-discovery",
+                "experimentation",
+                "kyc",
+                "okrs"
               ],
               "metrics": [
-                "Standing credentials eliminated",
-                "Passed OSFI audit with zero findings"
+                "Onboarding time 9 days → 5 minutes",
+                "Passed OSFI review with zero findings"
               ]
             }
           ],
           "proof_of_work": [
             {
-              "title": "Threat-modelling playbook (open source)",
-              "url": "https://github.com/example/threat-playbook",
+              "title": "Product discovery playbook (open source)",
+              "url": "https://github.com/example/discovery-playbook",
               "type": "repository"
             },
             {
-              "title": "Talk: Zero trust without the buzzwords",
-              "url": "https://example.com/talks/zero-trust",
+              "title": "Talk: Shipping compliance as a product",
+              "url": "https://example.com/talks/compliance-product",
               "type": "talk"
             }
           ],
@@ -388,7 +388,7 @@
               "vouched_by": "Sam Okoye",
               "vouched_by_github": "example-sokoye",
               "relationship": "client",
-              "statement": "Liam led our zero-trust programme and left us with a team that can run it.",
+              "statement": "Liam led our verification launch and left us with a team that can run it.",
               "date": "2026-06-11"
             },
             {
