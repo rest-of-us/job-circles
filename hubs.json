@@ -15,6 +15,32 @@
   "peers": [],
   "hubs": [
     {
+      "id": "community",
+      "name": "Community (all regions)",
+      "region": "global",
+      "description": "Profiles from regions whose hub isn't open yet. Each one moves to its regional hub when that hub launches.",
+      "repository": "https://github.com/rest-of-us/job-circles",
+      "profiles_url": "profiles/community.json",
+      "timezones": [],
+      "status": "active",
+      "always_open": true,
+      "submit": {
+        "repository": "rest-of-us/job-circles",
+        "branch": "main",
+        "path": "profiles/community"
+      }
+    },
+    {
+      "id": "demo",
+      "name": "Demo hub (sample data)",
+      "region": "europe",
+      "description": "Fictional sample profiles that show the profile format. Not real candidates.",
+      "repository": "https://github.com/rest-of-us/job-circles",
+      "profiles_url": "profiles/demo.json",
+      "timezones": [],
+      "status": "demo"
+    },
+    {
       "id": "uk",
       "name": "UK & Ireland",
       "region": "uk",
@@ -52,29 +78,6 @@
         "repository": "rest-of-us/hub-canada",
         "branch": "main",
         "path": "profiles"
-      }
-    },
-    {
-      "id": "us",
-      "name": "United States",
-      "region": "us",
-      "description": "Senior tech talent across the United States and its territories.",
-      "repository": "https://github.com/rest-of-us/job-circles",
-      "profiles_url": "profiles/us.json",
-      "timezones": [
-        "UTC-10",
-        "UTC-9",
-        "UTC-8",
-        "UTC-7",
-        "UTC-6",
-        "UTC-5",
-        "UTC-4"
-      ],
-      "status": "active",
-      "submit": {
-        "repository": "rest-of-us/job-circles",
-        "branch": "main",
-        "path": "profiles/us"
       }
     },
     {
@@ -161,30 +164,27 @@
       }
     },
     {
-      "id": "community",
-      "name": "Community (all regions)",
-      "region": "global",
-      "description": "Profiles from regions whose hub isn't open yet. Each one moves to its regional hub when that hub launches.",
+      "id": "us",
+      "name": "United States",
+      "region": "us",
+      "description": "Senior tech talent across the United States and its territories.",
       "repository": "https://github.com/rest-of-us/job-circles",
-      "profiles_url": "profiles/community.json",
-      "timezones": [],
+      "profiles_url": "profiles/us.json",
+      "timezones": [
+        "UTC-10",
+        "UTC-9",
+        "UTC-8",
+        "UTC-7",
+        "UTC-6",
+        "UTC-5",
+        "UTC-4"
+      ],
       "status": "active",
-      "always_open": true,
       "submit": {
         "repository": "rest-of-us/job-circles",
         "branch": "main",
-        "path": "profiles/community"
+        "path": "profiles/us"
       }
-    },
-    {
-      "id": "demo",
-      "name": "Demo hub (sample data)",
-      "region": "europe",
-      "description": "Fictional sample profiles that show the profile format. Not real candidates.",
-      "repository": "https://github.com/rest-of-us/job-circles",
-      "profiles_url": "profiles/demo.json",
-      "timezones": [],
-      "status": "demo"
     }
   ]
 }

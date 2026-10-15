@@ -754,7 +754,9 @@ function renderHubStatus() {
 }
 
 function renderHubList() {
-  const order = (h) => (h.status === 'planned' ? 3 : h.status === 'demo' ? 2 : h.source !== 'default' ? 1 : 0);
+  // Community and demo first, then hubs that are coming soon, then live regional hubs
+  // (in hubs.json order) as the bottom row; hubs added in this browser go last.
+  const order = (h) => (h.source !== 'default' ? 3 : h.always_open || h.status === 'demo' ? 0 : h.status === 'planned' ? 1 : 2);
   $('#hubList').innerHTML = [...state.hubs].sort((a, b) => order(a) - order(b)).map((h) => {
     const s = state.hubStatus[h.key] || {};
     if (s.state === 'planned') {
