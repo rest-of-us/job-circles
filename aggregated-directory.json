@@ -1,6 +1,6 @@
 {
   "directory_version": "1.0",
-  "generated": "2026-10-15T19:40:03.878Z",
+  "generated": "2026-10-15T19:49:03.259Z",
   "registry": "The Rest of US",
   "stale_after_days": 90,
   "hubs": [
@@ -14,7 +14,7 @@
       "error": null,
       "profile_count": 0,
       "invalid_count": 0,
-      "last_active": "2026-10-15",
+      "last_active": "2026-10-14",
       "profiles": []
     },
     {
@@ -550,7 +550,7 @@
       "error": null,
       "profile_count": 0,
       "invalid_count": 0,
-      "last_active": "2026-10-15",
+      "last_active": "2026-10-14",
       "profiles": []
     },
     {
@@ -563,7 +563,7 @@
       "error": null,
       "profile_count": 0,
       "invalid_count": 0,
-      "last_active": "2026-10-15",
+      "last_active": "2026-10-14",
       "profiles": []
     },
     {
@@ -576,7 +576,7 @@
       "error": null,
       "profile_count": 0,
       "invalid_count": 0,
-      "last_active": "2026-10-15",
+      "last_active": "2026-10-14",
       "profiles": []
     }
   ]
