@@ -6,6 +6,8 @@
 /profiles/schema.json  @rest-of-us
 /circles/schema.json   @rest-of-us
 /hubs.json             @rest-of-us
+/hubs.schema.json      @rest-of-us
+/hub-template/         @rest-of-us
 /js/                   @rest-of-us
 
 # Profiles in the hubs hosted here are reviewed by each hub's own volunteers,

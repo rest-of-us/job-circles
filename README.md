@@ -70,6 +70,9 @@ This project takes a different approach:
 | --- | --- |
 | [`index.html`](index.html) | The single-page search UI: Tailwind CSS, Fuse.js and vanilla JavaScript, all loaded from CDNs. |
 | [`hubs.json`](hubs.json) | Registry of regional hubs and their feed URLs. |
+| [`hubs.schema.json`](hubs.schema.json) | JSON Schema for `hubs.json`. Registry changes are checked against it. |
+| [`aggregated-directory.json`](aggregated-directory.json) | Daily snapshot of every hub, with health status, built by `aggregate-hubs.yml`. The site shows it on first load and falls back to it when a hub is down. |
+| [`hub-template/`](hub-template) | Starter repository for a circle hub of up to eight members. See [SETUP.md](SETUP.md). |
 | [`profiles/schema.json`](profiles/schema.json) | JSON Schema (draft 2020-12) that every candidate profile must pass. |
 | [`join.html`](join.html) | Profile builder: a form that checks entries as you type and opens a pre-filled GitHub pull request. |
 | [`profiles/demo.json`](profiles/demo.json) | Fictional sample profiles so the UI works before any hub goes live. They are labelled "Sample" in the UI. |
@@ -79,7 +82,7 @@ This project takes a different approach:
 | [`circles/`](circles) | Circle schema, sample circles, and one file per circle in `circles/entries/`, merged into `circles/index.json`. |
 | [`js/`](js) | Shared scripts: `hubs.js` (hub discovery, federation and IndexedDB caching), `geo.js` (city search, distances, timezones) and `jobflo.js` (JobFlo cross-promotion copy). |
 | [`SELF_HOSTING.md`](SELF_HOSTING.md) | Running your own node or hub, federating with others, and handling profile PRs and removals safely. |
-| [`.github/workflows/`](.github/workflows) | `validate-submissions.yml` checks profile and circle PRs; `build-feeds.yml` rebuilds the feeds on merge. |
+| [`.github/workflows/`](.github/workflows) | `validate-submissions.yml` checks profile, circle and registry PRs; `build-feeds.yml` rebuilds the feeds on merge; `aggregate-hubs.yml` health-checks every hub daily and flags erroring or stale ones in a `hub-health` issue. |
 
 ---
 
@@ -184,29 +187,16 @@ If there's nothing nearby, the page offers to **start a circle in your city**, s
 
 **Starting a circle** ([start-circle.html](https://rest-of-us.github.io/job-circles/start-circle.html)): fill in the form and click **Submit on GitHub**. A pull request adds `circles/entries/<id>.json`. The automated checks confirm that the circle passes [`circles/schema.json`](circles/schema.json), that the PR author is an organizer, and that coordinates are city-level. On merge, `circles/index.json` is rebuilt and the circle appears on the map. Organizers keep seats and status up to date with the "Organizer? Update seats" link on their circle.
 
-## Launching a regional hub
+## Launching a hub or circle
 
-Anyone can start a hub for a region that doesn't have one, or a region-specific community (a country, or a city).
+Anyone can start a hub: a small peer-vouched circle (up to eight people by default), or a hub for a region, country or city that doesn't have one yet. **[SETUP.md](SETUP.md)** walks through it step by step. In short:
 
-1. **Create the repo.** _A `hub-template` repository is planned but doesn't exist yet. Until then, open an issue on this repo to coordinate._ Once it exists: go to `rest-of-us/hub-template` and click **Use this template**. Name it `hub-<region>` (for example `hub-nordics`). Hubs can live under the `rest-of-us` account (ask in an issue) or in your own account or organization.
-2. **Enable GitHub Pages:** go to *Settings → Pages → Build and deployment → Source: GitHub Actions*.
-3. **Check the workflows.** The template ships two:
-   - `validate.yml` runs on every PR. It validates each `profiles/*.json` against the central schema, checks that the file name matches `id`, and checks that the PR author matches the profile's `github` handle (or the `vouched_by_github` of any added vouch).
-   - `publish.yml` runs on every push to `main`. It merges all profiles into a single `profiles.json` and deploys it to Pages.
-4. **Add maintainers.** Put at least two people in `CODEOWNERS` so reviews aren't blocked on one person.
-5. **Register the hub.** Open a PR against this repository adding an entry to [`hubs.json`](hubs.json):
-   ```json
-   {
-     "id": "nordics",
-     "name": "Nordics",
-     "region": "europe",
-     "description": "Senior tech talent in Denmark, Finland, Iceland, Norway and Sweden.",
-     "repository": "https://github.com/rest-of-us/hub-nordics",
-     "profiles_url": "https://rest-of-us.github.io/hub-nordics/profiles.json",
-     "timezones": ["UTC+1", "UTC+2"],
-     "status": "active"
-   }
-   ```
+1. **Copy [`hub-template/`](hub-template)** into a new public repository, for example with `npx degit rest-of-us/job-circles/hub-template hub-<name>`.
+2. **Fill in `hub.json`** (name, region, `max_members`, maintainers) and `.github/CODEOWNERS`.
+3. **Turn on GitHub Pages** with *Source: GitHub Actions*. The template's `validate-and-build.yml` checks every PR with the shared rules from this repository, enforces the member limit, and publishes `profiles.json` on merge.
+4. **Register it** with a PR that adds your `hub.json` entry to [`hubs.json`](hubs.json). The PR is checked against [`hubs.schema.json`](hubs.schema.json).
+
+Once registered, the daily health check watches your feed and flags it if it errors or goes 90 days without changes.
 
 ### Reviewing profiles for a hub hosted here
 

@@ -1,0 +1,88 @@
+name: Aggregate hubs
+
+# Daily health check of every hub in hubs.json. Rebuilds aggregated-directory.json
+# (the site's fast-path snapshot) and keeps one "hub-health" issue open while
+# any hub is erroring or has had no updates in 90 days.
+
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'hubs.json'
+  # Feeds rebuilt by Build feeds are pushed with GITHUB_TOKEN, which doesn't
+  # trigger push workflows, so pick them up here.
+  workflow_run:
+    workflows: ['Build feeds']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+
+concurrency:
+  group: feeds
+  cancel-in-progress: false
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install validator
+        run: npm install --no-save --no-package-lock ajv@8 ajv-formats@3
+
+      - name: Check hubs and build directory
+        id: aggregate
+        run: node scripts/aggregate-hubs.mjs hubs.json aggregated-directory.json
+        env:
+          STALE_DAYS: 90
+          HEALTH_REPORT: ${{ runner.temp }}/hub-health.md
+
+      - name: Commit directory
+        id: commit
+        if: steps.aggregate.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add aggregated-directory.json
+          git commit -m "Refresh aggregated hub directory"
+          git pull --rebase origin main
+          git push
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+      # Pushes made with GITHUB_TOKEN don't always trigger a Pages build, so request one.
+      - name: Rebuild GitHub Pages
+        if: steps.commit.outputs.pushed == 'true'
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages build request failed; the next push will deploy it."
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Update hub-health issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UNHEALTHY: ${{ steps.aggregate.outputs.unhealthy }}
+          REPORT: ${{ runner.temp }}/hub-health.md
+        run: |
+          gh label create hub-health --color d93f0b --description "Hubs that are erroring or stale" 2>/dev/null || true
+          issue=$(gh issue list --label hub-health --state open --json number --jq '.[0].number // empty')
+          if [ "${UNHEALTHY:-0}" -gt 0 ]; then
+            if [ -n "$issue" ]; then
+              gh issue edit "$issue" --title "Hub health: ${UNHEALTHY} hub(s) need attention" --body-file "$REPORT"
+            else
+              gh issue create --title "Hub health: ${UNHEALTHY} hub(s) need attention" --label hub-health --body-file "$REPORT"
+            fi
+          elif [ -n "$issue" ]; then
+            gh issue close "$issue" --comment "All hubs are healthy again."
+          fi

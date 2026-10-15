@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Circle hub</title>
+  <style>
+    :root { color-scheme: light dark; --fg: #0f172a; --muted: #475569; --bg: #fff; --line: #e2e8f0; --link: #4f46e5; }
+    @media (prefers-color-scheme: dark) { :root { --fg: #e2e8f0; --muted: #94a3b8; --bg: #020617; --line: #1e293b; --link: #818cf8; } }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 40rem; margin: 0 auto; padding: 3rem 1rem; }
+    p { color: var(--muted); }
+    a { color: var(--link); }
+    ul { padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    li { padding: .5rem 0; border-bottom: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="name">Circle hub</h1>
+    <p id="description">A circle in The Rest of US directory.</p>
+    <p><span id="count">…</span> · <a href="profiles.json">profiles.json</a> · <a href="hub.json">hub.json</a></p>
+    <ul id="members"></ul>
+    <p><a href="https://rest-of-us.github.io/job-circles/">Search every hub on The Rest of US →</a></p>
+  </main>
+  <script>
+    const text = (id, value) => { document.getElementById(id).textContent = value; };
+    Promise.allSettled([fetch('hub.json').then((r) => r.json()), fetch('profiles.json').then((r) => r.json())]).then(([hub, feed]) => {
+      if (hub.status === 'fulfilled') {
+        text('name', hub.value.name); text('description', hub.value.description || '');
+        document.title = hub.value.name;
+      }
+      const list = feed.status === 'fulfilled' && Array.isArray(feed.value) ? feed.value : [];
+      const max = hub.status === 'fulfilled' ? hub.value.max_members : null;
+      text('count', `${list.length}${max ? ` of ${max}` : ''} member${list.length === 1 ? '' : 's'}`);
+      const ul = document.getElementById('members');
+      for (const p of list) {
+        const li = document.createElement('li');
+        li.textContent = `${p.name || p.handle || p.id} — ${p.headline || ''}`;
+        ul.appendChild(li);
+      }
+    });
+  </script>
+</body>
+</html>

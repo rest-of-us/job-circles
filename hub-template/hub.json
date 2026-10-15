@@ -1,0 +1,17 @@
+{
+  "id": "my-circle",
+  "name": "My Circle",
+  "region": "global",
+  "description": "A peer-vouched circle of up to eight senior engineers. Replace this with who you are and where you work from.",
+  "repository": "https://github.com/OWNER/REPO",
+  "profiles_url": "https://OWNER.github.io/REPO/profiles.json",
+  "timezones": [],
+  "status": "active",
+  "maintainers": [],
+  "max_members": 8,
+  "submit": {
+    "repository": "OWNER/REPO",
+    "branch": "main",
+    "path": "profiles"
+  }
+}

@@ -323,7 +323,7 @@
             <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Regional hubs &amp; raw feeds</h2>
             <p class="mt-2 max-w-2xl text-slate-600 dark:text-slate-400">Each hub is an independent GitHub repository run by its own maintainers. Hubs are listed in <a href="hubs.json" class="font-mono text-sm text-brand-600 hover:underline dark:text-brand-400">hubs.json</a>; profiles follow <a href="profiles/schema.json" class="font-mono text-sm text-brand-600 hover:underline dark:text-brand-400">profiles/schema.json</a>.</p>
           </div>
-          <a href="https://github.com/rest-of-us/job-circles#launching-a-regional-hub" target="_blank" rel="noopener" class="shrink-0 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">How to launch a hub →</a>
+          <a href="https://github.com/rest-of-us/job-circles/blob/main/SETUP.md" target="_blank" rel="noopener" class="shrink-0 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">How to launch a hub →</a>
         </div>
         <div id="hubList" class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
 
@@ -432,6 +432,8 @@ const state = {
   config: null,
   hubs: [],
   hubStatus: {},          // hubId -> { state: 'loading'|'ok'|'error', count, error }
+  health: {},             // hubId -> the daily health check's record (aggregated-directory.json)
+  snapshotAt: null,       // when aggregated-directory.json was generated
   profiles: [],
   fuse: null,
   filters: defaultFilters()
@@ -540,13 +542,49 @@ function normalise(p, hub, sourceUrl) {
 
 let loadGeneration = 0;
 
+// Replaces a hub's profiles with `entries` ([{ profile, src }]) and returns how many were kept.
+function setHubProfiles(hub, entries) {
+  state.profiles = state.profiles.filter((p) => p._hub.key !== hub.key);
+  const seen = new Set();
+  let count = 0;
+  for (const { profile, src } of entries) {
+    if (!isPlausibleProfile(profile)) { console.warn(`[the-rest-of-us] skipped invalid profile in hub "${hub.key}"`, profile); continue; }
+    const p = normalise(profile, hub, src);
+    if (seen.has(p._key)) continue;
+    seen.add(p._key); state.profiles.push(p); count++;
+  }
+  return count;
+}
+
+// Fills hubs that haven't answered yet (or failed) from the aggregated snapshot,
+// and records each hub's health from the daily check.
+function applySnapshot(dir) {
+  if (!dir) return;
+  state.snapshotAt = Date.parse(dir.generated) || null;
+  for (const rec of dir.hubs) {
+    if (!rec || !rec.id) continue;
+    const hub = state.hubs.find((h) => h.source === 'default' && h.id === rec.id && h.feed === new URL(rec.profiles_url || '', dir.url).href);
+    if (!hub) continue;
+    state.health[hub.key] = rec;
+    const s = state.hubStatus[hub.key];
+    if (!s || !['loading', 'error'].includes(s.state) || !Array.isArray(rec.profiles) || !rec.profiles.length) continue;
+    const count = setHubProfiles(hub, rec.profiles.map((profile) => ({ profile, src: hub.feed })));
+    state.hubStatus[hub.key] = s.state === 'loading'
+      ? { ...s, count, snapshot: true }
+      : { state: 'ok', count, fetchedAt: state.snapshotAt, fromCache: true, stale: true, error: s.error, snapshot: true };
+  }
+  rebuildIndex(); renderHubStatus(); renderHubList(); renderStats(); renderTagFilters(); render();
+}
+
 async function loadAllHubs({ force = false } = {}) {
   const gen = ++loadGeneration;
   state.profiles = [];
   state.hubStatus = {};
+  state.health = {};
   rebuildIndex();
   $('#resultCount').textContent = 'Loading hubs…';
 
+  const directory = Hubs.loadDirectory({ force });
   const reg = await Hubs.loadRegistry({ force });
   if (gen !== loadGeneration) return;
   state.registries = reg.registries;
@@ -559,25 +597,25 @@ async function loadAllHubs({ force = false } = {}) {
     $('#resultCount').textContent = 'Couldn’t load ./hubs.json. Hubs you added yourself are still searched.';
   }
 
-  await Promise.allSettled(state.hubs.filter((h) => h.status !== 'planned').map(async (hub) => {
+  // Each hub is fetched on its own with a timeout (js/hubs.js), so a slow or broken
+  // hub never holds up the others; results render as each one answers.
+  const snapshot = directory.then((dir) => { if (gen === loadGeneration) applySnapshot(dir); });
+  await Promise.allSettled([snapshot, ...state.hubs.filter((h) => h.status !== 'planned').map(async (hub) => {
     try {
       const res = await Hubs.loadHub(hub, { force });
       if (gen !== loadGeneration) return;
-      const seen = new Set(state.profiles.map((p) => p._key));
-      let count = 0;
-      for (const { profile, src } of res.entries) {
-        if (!isPlausibleProfile(profile)) { console.warn(`[the-rest-of-us] skipped invalid profile in hub "${hub.key}"`, profile); continue; }
-        const p = normalise(profile, hub, src);
-        if (seen.has(p._key)) continue;
-        seen.add(p._key); state.profiles.push(p); count++;
-      }
+      const count = setHubProfiles(hub, res.entries);
       state.hubStatus[hub.key] = { state: 'ok', count, fetchedAt: res.fetchedAt, fromCache: res.fromCache, stale: res.stale, error: res.error };
     } catch (err) {
       if (gen !== loadGeneration) return;
-      state.hubStatus[hub.key] = { state: 'error', count: 0, error: err.message };
+      // Keep the snapshot's copy of this hub if it already arrived.
+      const s = state.hubStatus[hub.key];
+      state.hubStatus[hub.key] = s?.snapshot
+        ? { state: 'ok', count: s.count, fetchedAt: state.snapshotAt, fromCache: true, stale: true, error: err.message, snapshot: true }
+        : { state: 'error', count: 0, error: err.message };
     }
     rebuildIndex(); renderHubStatus(); renderHubList(); renderStats(); renderTagFilters(); render();
-  }));
+  })]);
   if (gen !== loadGeneration) return;
   rebuildIndex(); renderStats(); render();
   openFromHash();
@@ -768,7 +806,7 @@ function renderHubList() {
         <p class="mt-1 flex-1 text-sm text-slate-600 dark:text-slate-400">${esc(h.description || '')}</p>
         <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">Not open yet. Profiles from this region go to the Community hub until it launches.</p>
         <div class="mt-3 flex flex-wrap gap-2 text-xs">
-          <a href="https://github.com/rest-of-us/job-circles#launching-a-regional-hub" class="rounded-lg bg-slate-100 px-2.5 py-1.5 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700" target="_blank" rel="noopener">Help launch this hub</a>
+          <a href="https://github.com/rest-of-us/job-circles/blob/main/SETUP.md" class="rounded-lg bg-slate-100 px-2.5 py-1.5 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700" target="_blank" rel="noopener">Help launch this hub</a>
         </div>
       </article>`;
     }
@@ -786,6 +824,7 @@ function renderHubList() {
       </div>
       <p class="mt-1 flex-1 text-sm text-slate-600 dark:text-slate-400">${esc(h.description || '')}</p>
       <p class="mt-3 text-xs font-medium ${statusClass}">${statusText}</p>
+      ${state.health[h.key]?.health === 'stale' ? `<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">No profile updates since ${esc(state.health[h.key].last_active)}</p>` : ''}
       ${reviewersHtml(h)}
       <div class="mt-3 flex flex-wrap gap-2 text-xs">
         ${feed ? `<a href="${esc(feed)}" class="rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700" target="_blank" rel="noopener">Raw JSON feed</a>` : ''}

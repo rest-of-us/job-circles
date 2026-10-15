@@ -51,7 +51,7 @@ The easiest way to get validation and feed building is to copy these from this r
 | `scripts/build-feed.mjs` | Merges `profiles/*.json` into one feed. |
 | `.github/workflows/validate-submissions.yml`, `build-feeds.yml` | Run the above on PRs and on merge. Adjust the paths to match your layout. |
 
-A dedicated `hub-template` repository is planned. Until it exists, copying these files is the supported route.
+Or start from [`hub-template/`](hub-template), which does all of this with one workflow and fetches the shared rules from upstream on each run. See [SETUP.md](SETUP.md).
 
 ### Option C: any other static host
 

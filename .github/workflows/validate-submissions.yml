@@ -8,6 +8,7 @@ on:
       - 'profiles/africa/**'
       - 'profiles/middle-east/**'
       - 'circles/entries/**'
+      - 'hubs.json'
 
 permissions:
   contents: read
@@ -31,7 +32,7 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           mkdir -p "$RUNNER_TEMP/trusted"
-          git archive "$BASE_SHA" scripts profiles/schema.json circles/schema.json | tar -x -C "$RUNNER_TEMP/trusted"
+          git archive "$BASE_SHA" scripts profiles/schema.json circles/schema.json hubs.schema.json | tar -x -C "$RUNNER_TEMP/trusted"
           cd "$RUNNER_TEMP/trusted" && npm install --no-save --no-package-lock ajv@8 ajv-formats@3
 
       - name: Check profile changes
@@ -53,3 +54,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+
+      - name: Check hub registry
+        if: success() || failure()
+        run: node "$RUNNER_TEMP/trusted/scripts/validate-registry.mjs" hubs.json

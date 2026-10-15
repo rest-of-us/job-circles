@@ -7,12 +7,17 @@
 //   3. hub feeds or hubs.json registries the visitor adds in the UI, kept in
 //      this browser's localStorage.
 //
+// ./aggregated-directory.json (built daily by the aggregate-hubs workflow) is a
+// snapshot of every hub in ./hubs.json. The page shows it straight away and
+// keeps it for hubs that are down; live feeds replace it as they arrive.
+//
 // Responses are cached in IndexedDB (falling back to memory) for a
 // configurable time, so repeat visits don't re-download every hub.
 'use strict';
 
 window.Hubs = (() => {
   const DEFAULT_REGISTRY = './hubs.json';
+  const DEFAULT_DIRECTORY = './aggregated-directory.json';
   const CUSTOM_KEY = 'trou-custom-hubs';
   const TTL_KEY = 'trou-cache-ttl-min';
   const DEFAULT_TTL_MIN = 60;
@@ -232,6 +237,16 @@ window.Hubs = (() => {
     return { entries: entries.filter(Boolean), fetchedAt: res.fetchedAt, fromCache: res.fromCache, stale: res.stale, error: res.error };
   }
 
+  // Returns the aggregated snapshot with its resolved `url`, or null if there
+  // isn't one; it's optional, so a fork without the workflow still works.
+  async function loadDirectory({ force = false } = {}) {
+    try {
+      const { data } = await cachedFetch(DEFAULT_DIRECTORY, { force });
+      if (!data || !Array.isArray(data.hubs)) return null;
+      return { ...data, url: new URL(DEFAULT_DIRECTORY, location.href).href };
+    } catch { return null; }
+  }
+
   // Works out whether a URL is a hubs.json registry or a single hub feed.
   async function detect(url) {
     if (!isAllowedUrl(url)) throw new Error('Use an https:// address (or http://localhost for testing).');
@@ -243,7 +258,7 @@ window.Hubs = (() => {
   }
 
   return {
-    loadRegistry, loadHub, cachedFetch, clearCache, detect,
+    loadRegistry, loadHub, loadDirectory, cachedFetch, clearCache, detect,
     customEntries, addCustom, removeCustom, isAllowedUrl,
     ttlMinutes, setTtlMinutes, DEFAULT_TTL_MIN
   };

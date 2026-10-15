@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rest-of-us.github.io/job-circles/hubs.schema.json",
+  "title": "The Rest of US — Hub registry",
+  "description": "The registry (hubs.json) that lists every hub a node searches. Each hub is an independent profile feed, usually a GitHub Pages site built from a hub repository. Health data is not stored here: the daily aggregate-hubs workflow writes it to aggregated-directory.json, so this file only changes when a person edits it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_version", "name", "hubs"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "registry_version": { "type": "string", "enum": ["1.0", "1.1"] },
+    "name": { "type": "string", "minLength": 2, "maxLength": 80, "description": "Shown when other nodes list this registry as a peer." },
+    "updated": { "type": "string", "format": "date" },
+    "profile_schema": { "type": "string", "description": "Path or URL of the profile schema hubs in this registry follow." },
+    "circles": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "feed": { "type": "string" },
+        "schema": { "type": "string" },
+        "submit": { "$ref": "#/$defs/submit" }
+      }
+    },
+    "peers": {
+      "type": "array",
+      "maxItems": 20,
+      "description": "Other nodes' hubs.json URLs. Followed one level deep.",
+      "items": {
+        "oneOf": [
+          { "type": "string", "format": "uri", "pattern": "^https://" },
+          {
+            "type": "object",
+            "required": ["url"],
+            "properties": { "url": { "type": "string", "format": "uri", "pattern": "^https://" }, "name": { "type": "string" } }
+          }
+        ]
+      }
+    },
+    "hubs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hub" }
+    }
+  },
+  "$defs": {
+    "submit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "branch", "path"],
+      "properties": {
+        "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", "description": "owner/repo that receives profile pull requests." },
+        "branch": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1, "description": "Folder in that repository where profile files go." }
+      }
+    },
+    "hub": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "region", "profiles_url", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "maxLength": 64,
+          "description": "Unique within this registry. Used in profile links (#profile=<id>:<profile>)."
+        },
+        "name": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "region": {
+          "type": "string",
+          "enum": ["uk", "europe", "canada", "us", "latam", "apac", "africa", "middle-east", "global"]
+        },
+        "description": { "type": "string", "maxLength": 300 },
+        "repository": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "profiles_url": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The hub's feed: an absolute https:// URL, or a path relative to this hubs.json for hubs hosted in the same repository."
+        },
+        "timezones": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^UTC(?:[+-]\\d{1,2}(?::\\d{2})?)?$" }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "planned", "demo", "disabled"],
+          "description": "active: fetched and searched. planned: listed as coming soon, not fetched. demo: fetched, labelled as samples. disabled: ignored."
+        },
+        "maintainers": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$" },
+          "description": "GitHub usernames of the hub's volunteer reviewers."
+        },
+        "max_members": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000,
+          "description": "Optional size cap the hub enforces on itself (hub-template defaults to 8)."
+        },
+        "always_open": {
+          "type": "boolean",
+          "description": "Receives submissions for regions without an open hub."
+        },
+        "submit": { "$ref": "#/$defs/submit" }
+      }
+    }
+  }
+}

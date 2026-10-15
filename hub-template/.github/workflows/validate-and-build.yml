@@ -1,0 +1,148 @@
+name: Validate and build
+
+# Pull requests: checks each added or changed profile with the shared rules
+# from rest-of-us/job-circles (schema, owner-only edits, vouch rules and
+# signatures) and enforces this hub's member limit from hub.json.
+# Pushes to main: merges profiles/*.json into profiles.json and publishes it,
+# with hub.json, to GitHub Pages.
+#
+# The rules are fetched from upstream at run time, so every hub stays in step
+# with the main directory. Pin UPSTREAM_REF to a commit SHA if you'd rather
+# update on your own schedule.
+
+on:
+  pull_request:
+    paths:
+      - 'profiles/**'
+      - 'hub.json'
+  push:
+    branches: [main]
+    paths:
+      - 'profiles/**'
+      - 'hub.json'
+      - 'index.html'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  UPSTREAM_REPO: rest-of-us/job-circles
+  UPSTREAM_REF: main
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch the shared rules
+        run: |
+          git clone --quiet --depth 1 --branch "$UPSTREAM_REF" "https://github.com/$UPSTREAM_REPO.git" "$RUNNER_TEMP/upstream" \
+            || { git clone --quiet "https://github.com/$UPSTREAM_REPO.git" "$RUNNER_TEMP/upstream" && git -C "$RUNNER_TEMP/upstream" checkout --quiet "$UPSTREAM_REF"; }
+          cd "$RUNNER_TEMP/upstream" && npm install --no-save --no-package-lock ajv@8 ajv-formats@3
+
+      # Settings come from the base branch, so a PR can't raise its own limit.
+      - name: Read hub settings
+        id: hub
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git show "$BASE_SHA:hub.json" > "$RUNNER_TEMP/hub.json" 2>/dev/null || cp hub.json "$RUNNER_TEMP/hub.json"
+          node -e '
+            const h = require(process.argv[1]);
+            const region = h.region && h.region !== "global" ? h.region : "";
+            const max = Number.isInteger(h.max_members) ? h.max_members : 8;
+            console.log(`region=${region}\nmax=${max}`);
+          ' "$RUNNER_TEMP/hub.json" >> "$GITHUB_OUTPUT"
+
+      - name: Check profile changes
+        run: node "$RUNNER_TEMP/upstream/scripts/validate-profiles.mjs" profiles "$REGION"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REGION: ${{ steps.hub.outputs.region }}
+
+      - name: Check member limit
+        if: success() || failure()
+        env:
+          MAX: ${{ steps.hub.outputs.max }}
+        run: |
+          count=$(find profiles -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
+          echo "This hub has $count of $MAX member(s)."
+          if [ "$count" -gt "$MAX" ]; then
+            echo "::error file=hub.json::This hub is full ($count profiles, limit $MAX). Start a new circle from the hub template, or ask the maintainers to raise max_members."
+            exit 1
+          fi
+
+      - name: Check hub.json
+        if: success() || failure()
+        run: |
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            import Ajv2020 from "ajv/dist/2020.js";
+            import addFormats from "ajv-formats";
+            const ajv = new Ajv2020({ allErrors: true, strict: false });
+            addFormats(ajv);
+            const schema = JSON.parse(readFileSync("hubs.schema.json", "utf8"));
+            ajv.addSchema(schema);
+            const validate = ajv.getSchema(schema.$id + "#/$defs/hub");
+            const hub = JSON.parse(readFileSync(process.argv[1], "utf8"));
+            if (!validate(hub)) {
+              for (const e of validate.errors) console.log(`::error file=hub.json::${e.instancePath || "(root)"} ${e.message}`);
+              process.exit(1);
+            }
+            console.log("hub.json passed.");
+          ' "$GITHUB_WORKSPACE/hub.json"
+        working-directory: ${{ runner.temp }}/upstream
+
+  build:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch the shared rules
+        run: |
+          git clone --quiet --depth 1 --branch "$UPSTREAM_REF" "https://github.com/$UPSTREAM_REPO.git" "$RUNNER_TEMP/upstream" \
+            || { git clone --quiet "https://github.com/$UPSTREAM_REPO.git" "$RUNNER_TEMP/upstream" && git -C "$RUNNER_TEMP/upstream" checkout --quiet "$UPSTREAM_REF"; }
+          cd "$RUNNER_TEMP/upstream" && npm install --no-save --no-package-lock ajv@8 ajv-formats@3
+
+      # Profiles that don't pass the schema are left out of the feed, not published.
+      - name: Build profiles.json
+        run: |
+          mkdir -p _site
+          node "$RUNNER_TEMP/upstream/scripts/build-feed.mjs" profiles _site/profiles.json --schema "$RUNNER_TEMP/upstream/profiles/schema.json"
+          cp hub.json _site/hub.json
+          if [ -f index.html ]; then cp index.html _site/index.html; fi
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
